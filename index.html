@@ -4,12 +4,767 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minerva Admissions</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/design-system.css">
   <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/freddy.css">
+  <link rel="stylesheet" href="css/glassmorphism.css">
+
+  <style>
+    /* ══════════════════════════════════════════════════
+       LOADING SCREEN
+    ══════════════════════════════════════════════════ */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      /* Fade out after full sequence (~3.9s in) */
+      animation: loading-fade-out 0.5s ease 3.9s forwards;
+    }
+
+    #loading-center {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Ensō SVG ─────────────────────────────────── */
+    #enso-svg {
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      /* Phase 2 (pulse) then Phase 3 (spin + fade) as two separate animations */
+      animation:
+        enso-pulse   1s    ease-in-out              1.5s         forwards,
+        enso-spin-out 1.2s cubic-bezier(0.4,0,1,1) 2.5s         forwards;
+    }
+
+    /* Phase 1: stroke draws counter-clockwise along the path */
+    #enso-path {
+      stroke-dasharray:  1;      /* pathLength="1" normalises the total length */
+      stroke-dashoffset: 1;      /* fully hidden at start */
+      animation: enso-draw 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    /* ── Particle burst ───────────────────────────── */
+    #particles-burst {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .particle {
+      position: absolute;
+      top:    50%;
+      left:   50%;
+      width:  6px;
+      height: 6px;
+      border-radius: 50%;
+      margin: -3px 0 0 -3px;
+      opacity: 0;
+      animation: particle-fly 0.75s cubic-bezier(0, 0, 0.2, 1)
+                 calc(3.45s + var(--stagger, 0s)) both;
+    }
+
+    /* ── Loading keyframes ────────────────────────── */
+    @keyframes enso-draw {
+      from { stroke-dashoffset: 1; }
+      to   { stroke-dashoffset: 0; }
+    }
+
+    @keyframes enso-pulse {
+      0%, 100% { opacity: 1;    }
+      50%       { opacity: 0.85; }
+    }
+
+    @keyframes enso-spin-out {
+      0%   { opacity: 1;   transform: rotate(0deg);   }
+      80%  { opacity: 0.9; transform: rotate(720deg); }
+      100% { opacity: 0;   transform: rotate(720deg); }
+    }
+
+    @keyframes particle-fly {
+      0%  {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+      }
+      60% { opacity: 0.7; }
+      100% {
+        opacity: 0;
+        transform: translate(calc(var(--dx) * 1px), calc(var(--dy) * 1px)) scale(0);
+      }
+    }
+
+    @keyframes loading-fade-out {
+      from { opacity: 1; }
+      to   { opacity: 0; visibility: hidden; pointer-events: none; }
+    }
+
+    /* ══════════════════════════════════════════════════
+       SITE CONTENT — starts invisible, fades in
+    ══════════════════════════════════════════════════ */
+    #site-content {
+      opacity: 0;
+      animation: site-fade-in 0.65s ease 4.1s forwards;
+    }
+
+    @keyframes site-fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* ══════════════════════════════════════════════════
+       FREDDY INTRO CARD
+    ══════════════════════════════════════════════════ */
+    #freddy-intro {
+      position:   fixed;
+      bottom:     24px;
+      right:      24px;
+      max-width:  260px;
+      padding:    14px 18px 14px 20px;
+      border-left: 3px solid var(--color-gold);
+      z-index:    9000;
+      opacity:    0;
+      transform:  translateY(8px);
+      animation:
+        freddy-in  0.35s var(--ease-spring)  4.5s  forwards,
+        freddy-out 0.30s ease                8.5s  forwards;
+    }
+
+    @keyframes freddy-in {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes freddy-out {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(8px); pointer-events: none; }
+    }
+
+    .freddy-intro-text {
+      font-family: var(--font-body);
+      font-size:   14px;
+      color:       var(--dark-text, #E8E6E0);
+      line-height: 1.55;
+      margin:      0;
+    }
+
+    /* ══════════════════════════════════════════════════
+       NAVIGATION
+    ══════════════════════════════════════════════════ */
+    #nav {
+      position:      fixed;
+      top:           0;
+      left:          0;
+      right:         0;
+      height:        60px;
+      background:    rgba(10, 10, 20, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display:       flex;
+      align-items:   center;
+      justify-content: space-between;
+      padding:       0 var(--sp-7);
+      z-index:       1000;
+    }
+
+    .wordmark {
+      font-family:    var(--font-display);
+      font-size:      24px;
+      font-weight:    700;
+      color:          var(--color-gold);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      display:        inline-block;
+      transition:     opacity 0.2s ease;
+    }
+    .wordmark:hover { opacity: 0.82; color: var(--color-gold); text-decoration: none; }
+
+    @keyframes wordmark-flip {
+      from { transform: rotateY(0deg); }
+      to   { transform: rotateY(360deg); }
+    }
+    .wordmark.spinning {
+      animation: wordmark-flip 0.6s var(--ease-spring) forwards;
+    }
+
+    .nav-links {
+      display:     flex;
+      align-items: center;
+      gap:         var(--sp-7);
+    }
+
+    .nav-link {
+      font-family:    var(--font-body);
+      font-size:      14px;
+      font-weight:    400;
+      color:          rgba(255, 255, 255, 0.72);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      transition:     color 0.2s ease;
+    }
+    .nav-link:hover { color: #ffffff; text-decoration: none; }
+
+    .nav-mood-btn {
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      width:           36px;
+      height:          36px;
+      border-radius:   var(--r-full);
+      background:      rgba(255, 255, 255, 0.07);
+      border:          1px solid rgba(255, 255, 255, 0.12);
+      color:           rgba(255, 255, 255, 0.72);
+      cursor:          pointer;
+      transition:      background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+      padding:         0;
+    }
+    .nav-mood-btn:hover {
+      background:    rgba(201, 168, 76, 0.15);
+      color:         var(--color-gold-light);
+      border-color:  rgba(201, 168, 76, 0.35);
+    }
+
+    /* ══════════════════════════════════════════════════
+       HERO
+    ══════════════════════════════════════════════════ */
+    #hero {
+      position:        relative;
+      min-height:      100vh;
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      background:      #000000;
+      overflow:        hidden;
+      padding:         80px var(--sp-7) var(--sp-12);
+    }
+
+    .hero-bg-pulse {
+      position:       absolute;
+      inset:          0;
+      background:     radial-gradient(
+                        ellipse 72% 72% at 50% 52%,
+                        rgba(26, 26, 46, 0.90)  0%,
+                        rgba(10, 10, 20, 0.55) 55%,
+                        transparent            100%
+                      );
+      animation:      hero-breathe 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes hero-breathe {
+      0%, 100% { opacity: 0.65; transform: scale(1);    }
+      50%       { opacity: 1;   transform: scale(1.28); }
+    }
+
+    #particles {
+      position:       absolute;
+      inset:          0;
+      width:          100%;
+      height:         100%;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position:        relative;
+      z-index:         1;
+      text-align:      center;
+      max-width:       var(--container-medium);
+      display:         flex;
+      flex-direction:  column;
+      align-items:     center;
+      gap:             var(--sp-6);
+    }
+
+    .hero-headline {
+      font-family:    var(--font-display);
+      font-size:      clamp(2.5rem, 7vw, 4rem); /* 40px → 64px */
+      font-weight:    700;
+      color:          #ffffff;
+      letter-spacing: -0.02em;
+      line-height:    1.1;
+      margin:         0;
+    }
+
+    .hero-sub {
+      font-family: var(--font-body);
+      font-size:   clamp(1rem, 2.5vw, 1.25rem); /* 16px → 20px */
+      color:       var(--dark-text-2, #9B99A8);
+      line-height: 1.6;
+      max-width:   520px;
+      margin:      0;
+    }
+
+    .hero-ctas {
+      display:         flex;
+      gap:             var(--sp-4);
+      flex-wrap:       wrap;
+      justify-content: center;
+      margin-top:      var(--sp-2);
+    }
+
+    /* btn-secondary override for dark hero background */
+    #hero .btn-secondary {
+      border-color: rgba(255, 255, 255, 0.28);
+      color:        #ffffff;
+    }
+    #hero .btn-secondary:hover {
+      background:   rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.50);
+    }
+
+    .hero-proof {
+      font-family:    var(--font-body);
+      font-size:      13px;
+      color:          var(--color-academic);
+      letter-spacing: 0.02em;
+      margin-top:     var(--sp-1);
+    }
+
+    /* ══════════════════════════════════════════════════
+       FEATURES
+    ══════════════════════════════════════════════════ */
+    #features {
+      background: var(--color-cream);
+      padding:    var(--sp-12) var(--sp-7);
+    }
+
+    .features-eyebrow {
+      font-family:    var(--font-body);
+      font-size:      11px;
+      font-weight:    500;
+      color:          var(--color-gold-dim);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-align:     center;
+      margin-bottom:  var(--sp-3);
+    }
+
+    .features-title {
+      font-family:    var(--font-display);
+      font-size:      clamp(1.5rem, 3.5vw, 2.25rem);
+      font-weight:    700;
+      color:          var(--color-ink);
+      text-align:     center;
+      letter-spacing: -0.01em;
+      margin-bottom:  var(--sp-10);
+    }
+
+    .features-grid {
+      display:               grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap:                   var(--sp-5);
+      max-width:             var(--container-wide);
+      margin:                0 auto;
+    }
+
+    .feature-card {
+      background:     var(--color-surface);
+      border:         1px solid var(--color-border);
+      border-radius:  var(--r-xl);
+      padding:        var(--sp-7);
+      display:        flex;
+      flex-direction: column;
+      gap:            var(--sp-4);
+      transition:     transform 220ms var(--ease-spring),
+                      box-shadow 220ms ease,
+                      border-color 220ms ease;
+    }
+
+    .feature-card:hover {
+      transform:    translateY(-3px);
+      box-shadow:   0 8px 32px rgba(26, 26, 46, 0.10);
+      border-color: var(--color-border-strong);
+    }
+
+    .feature-icon {
+      width:            48px;
+      height:           48px;
+      background:       rgba(201, 168, 76, 0.12);
+      border-radius:    var(--r-lg);
+      display:          flex;
+      align-items:      center;
+      justify-content:  center;
+      color:            var(--color-gold-dim);
+      flex-shrink:      0;
+    }
+
+    .feature-card h3 {
+      font-family:    var(--font-display);
+      font-size:      1.125rem;
+      font-weight:    600;
+      color:          var(--color-ink);
+      letter-spacing: -0.01em;
+    }
+
+    .feature-card p {
+      font-family: var(--font-body);
+      font-size:   14px;
+      color:       var(--color-academic);
+      line-height: 1.65;
+      flex:        1;
+      max-width:   none;
+    }
+
+    .feature-link {
+      font-family:    var(--font-body);
+      font-size:      13px;
+      font-weight:    500;
+      color:          var(--color-gold-dim);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+      display:        inline-flex;
+      align-items:    center;
+      gap:            4px;
+      transition:     gap 180ms var(--ease-spring), color 180ms ease;
+    }
+    .feature-link:hover {
+      color:           var(--color-gold);
+      gap:             9px;
+      text-decoration: none;
+    }
+
+    /* ══════════════════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════════════════ */
+    footer {
+      background: var(--color-ink);
+      padding:    var(--sp-7);
+      text-align: center;
+    }
+
+    .footer-text {
+      font-family:    var(--font-body);
+      font-size:      13px;
+      color:          var(--dark-text-2, #9B99A8);
+      letter-spacing: 0.02em;
+    }
+
+    /* ══════════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      #nav         { padding: 0 var(--sp-5); }
+      .nav-links   { gap: var(--sp-5); }
+      .nav-link    { font-size: 13px; }
+      .features-grid { grid-template-columns: 1fr; gap: var(--sp-4); }
+      #features    { padding: var(--sp-10) var(--sp-5); }
+    }
+
+    @media (max-width: 480px) {
+      .nav-link:not(.nav-link--apply) { display: none; }
+      .hero-ctas { flex-direction: column; align-items: stretch; width: 100%; }
+    }
+  </style>
 </head>
 <body>
 
+  <!-- ══════════════════════════════════════════════
+       LOADING SCREEN
+  ══════════════════════════════════════════════ -->
+  <div id="loading-screen" aria-hidden="true" role="presentation">
+    <div id="loading-center">
+
+      <!--
+        Ensō — organic hand-drawn style ring.
+        Path goes counter-clockwise (top → left → bottom → right).
+        Slight eccentricity on each quadrant creates the imperfection.
+        pathLength="1" normalises total path length for clean dashoffset animation.
+      -->
+      <svg id="enso-svg"
+           viewBox="0 0 200 200"
+           xmlns="http://www.w3.org/2000/svg"
+           aria-hidden="true">
+        <path
+          id="enso-path"
+          d="M 103,18
+             C 56,12  13,50  14,100
+             C 15,152  55,188 103,186
+             C 151,184 188,148 187,97
+             C 186,50  150,17  103,18"
+          fill="none"
+          stroke="#FFFFFF"
+          stroke-width="18"
+          stroke-linecap="round"
+          pathLength="1"
+        />
+      </svg>
+
+      <!--
+        12 particles — 6px circles, distributed ~30° apart with slight jitter.
+        Colors alternate: white / gold / white / gold / white / navy (×2 rounds).
+        --dx and --dy are unitless pixel offsets used in the keyframe calc().
+        --stagger adds a tiny timing offset per particle for an organic burst.
+      -->
+      <div id="particles-burst" aria-hidden="true">
+        <div class="particle" style="--dx:10;   --dy:-162; --stagger:0s;     background:#ffffff"></div>
+        <div class="particle" style="--dx:92;   --dy:-140; --stagger:0.03s;  background:#C9A84C"></div>
+        <div class="particle" style="--dx:150;  --dy:-68;  --stagger:0.05s;  background:#ffffff"></div>
+        <div class="particle" style="--dx:164;  --dy:16;   --stagger:0.02s;  background:#C9A84C"></div>
+        <div class="particle" style="--dx:122;  --dy:97;   --stagger:0.04s;  background:#ffffff"></div>
+        <div class="particle" style="--dx:56;   --dy:152;  --stagger:0.01s;  background:#1A1A2E"></div>
+        <div class="particle" style="--dx:-16;  --dy:164;  --stagger:0.06s;  background:#ffffff"></div>
+        <div class="particle" style="--dx:-90;  --dy:136;  --stagger:0.03s;  background:#C9A84C"></div>
+        <div class="particle" style="--dx:-150; --dy:72;   --stagger:0.02s;  background:#ffffff"></div>
+        <div class="particle" style="--dx:-162; --dy:-12;  --stagger:0.05s;  background:#C9A84C"></div>
+        <div class="particle" style="--dx:-120; --dy:-96;  --stagger:0.01s;  background:#ffffff"></div>
+        <div class="particle" style="--dx:-54;  --dy:-148; --stagger:0.04s;  background:#1A1A2E"></div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════
+       SITE CONTENT
+  ══════════════════════════════════════════════ -->
+  <div id="site-content">
+
+    <!-- Freddy Intro Card -->
+    <div id="freddy-intro" class="chromatic-glass" role="status" aria-live="polite">
+      <p class="freddy-intro-text">
+        This is Freddy. He will follow you around. He means well.
+      </p>
+    </div>
+
+    <!-- Navigation -->
+    <header id="nav" role="banner">
+      <a href="index.html" class="wordmark" id="wordmark" aria-label="Minerva — go home">MINERVA</a>
+
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="apply/index.html"  class="nav-link nav-link--apply">Apply</a>
+        <a href="signal/index.html" class="nav-link">Signal Not Noise</a>
+        <a href="ledger/index.html" class="nav-link">Verification Ledger</a>
+
+        <button class="nav-mood-btn" id="mood-toggle" aria-label="Change mood theme" type="button">
+          <!-- Freddy cat silhouette -->
+          <svg viewBox="0 0 20 20" width="18" height="18" fill="currentColor" aria-hidden="true">
+            <!-- Ears -->
+            <polygon points="3,11 5,5 7,10"/>
+            <polygon points="17,11 15,5 13,10"/>
+            <!-- Head -->
+            <ellipse cx="10" cy="13" rx="6" ry="5"/>
+            <!-- Eyes -->
+            <circle cx="8"  cy="12.5" r="1" fill="rgba(0,0,0,0.5)"/>
+            <circle cx="12" cy="12.5" r="1" fill="rgba(0,0,0,0.5)"/>
+          </svg>
+        </button>
+      </nav>
+    </header>
+
+    <main>
+
+      <!-- Hero -->
+      <section id="hero" aria-labelledby="hero-headline">
+        <div class="hero-bg-pulse" aria-hidden="true"></div>
+        <canvas id="particles" aria-hidden="true"></canvas>
+
+        <div class="hero-content">
+          <h1 class="hero-headline" id="hero-headline">Apply as yourself.</h1>
+          <p class="hero-sub">
+            Tools to help you prove who you are —<br>
+            not just what looks good on paper.
+          </p>
+          <div class="hero-ctas">
+            <a href="apply/index.html"  class="btn btn-gold">Start My Application</a>
+            <a href="ledger/index.html" class="btn btn-secondary">Prove My Accomplishments</a>
+          </div>
+          <p class="hero-proof">Used by applicants from 40+ countries</p>
+        </div>
+      </section>
+
+      <!-- Features -->
+      <section id="features" aria-labelledby="features-title">
+        <p class="features-eyebrow">What's inside</p>
+        <h2 class="features-title" id="features-title">Built for the real applicant</h2>
+
+        <div class="features-grid">
+
+          <!-- Card 1 — Signal Not Noise -->
+          <article class="feature-card reveal-target">
+            <div class="feature-icon" aria-hidden="true">
+              <!-- Speech bubble -->
+              <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M4 7C4 5.9 4.9 5 6 5H26C27.1 5 28 5.9 28 7V21C28 22.1 27.1 23 26 23H10L4 29V7Z"
+                      stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M10 13H22M10 17H17"
+                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <h3>Signal Not Noise</h3>
+            <p>A Socratic tool that asks the questions that surface your real story — not the version you think they want.</p>
+            <a href="signal/index.html" class="feature-link">Try it →</a>
+          </article>
+
+          <!-- Card 2 — Verification Ledger -->
+          <article class="feature-card reveal-target">
+            <div class="feature-icon" aria-hidden="true">
+              <!-- Checkmark badge -->
+              <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M16 3L20 7H25V12L28 16L25 21V26H20L16 29L12 26H7V21L4 16L7 12V7H12L16 3Z"
+                      stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M11 16L14.5 19.5L21 12.5"
+                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h3>Verification Ledger</h3>
+            <p>Your competitions and achievements deserve to be verifiable — even when they only exist on a Facebook page.</p>
+            <a href="ledger/index.html" class="feature-link">Submit yours →</a>
+          </article>
+
+          <!-- Card 3 — The Application -->
+          <article class="feature-card reveal-target">
+            <div class="feature-icon" aria-hidden="true">
+              <!-- Document -->
+              <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 4H20L28 12V28H8V4Z"
+                      stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M20 4V12H28"
+                      stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+                <path d="M13 18H23M13 22H19"
+                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <h3>A Form That Gets It</h3>
+            <p>Multi-step. Auto-saves. Knows you might close the tab and come back tomorrow at 2am.</p>
+            <a href="apply/index.html" class="feature-link">Begin →</a>
+          </article>
+
+        </div>
+      </section>
+
+    </main>
+
+    <footer role="contentinfo">
+      <p class="footer-text">Built by Praise Vincent, M29 · Minerva University · 2026</p>
+    </footer>
+
+  </div><!-- /#site-content -->
+
+
+  <!-- ══════════════════════════════════════════════
+       SCRIPTS
+  ══════════════════════════════════════════════ -->
+
+  <!-- 1. OS Detection — runs immediately so classes land before paint -->
+  <script>
+    (function () {
+      const ua  = navigator.userAgent;
+      const cls = /iPhone|iPad|iPod|Android/i.test(ua) ? 'os-mobile'
+                : /Mac/i.test(ua)                       ? 'os-mac'
+                : /Win/i.test(ua)                       ? 'os-win'
+                : /Linux/i.test(ua)                     ? 'os-linux'
+                : '';
+      if (cls) document.documentElement.classList.add(cls);
+    })();
+  </script>
+
+  <!-- 2. Feature scripts -->
   <script src="js/freddy.js"></script>
-  <script src="js/form.js"></script>
+  <script src="js/mood.js"></script>
+
+  <!-- 3. Page logic -->
+  <script>
+    /* ── Loading screen: remove from DOM after fade completes ───── */
+    const loadingScreen = document.getElementById('loading-screen');
+    loadingScreen.addEventListener('animationend', function (e) {
+      if (e.animationName === 'loading-fade-out') {
+        loadingScreen.style.display = 'none';
+      }
+    });
+
+    /* ── Wordmark: single full rotation on click ─────────────────── */
+    const wordmark = document.getElementById('wordmark');
+    wordmark.addEventListener('click', function (e) {
+      e.preventDefault();
+      this.classList.add('spinning');
+      this.addEventListener('animationend', () => {
+        this.classList.remove('spinning');
+        window.location.href = this.getAttribute('href');
+      }, { once: true });
+    });
+
+    /* ── Canvas ambient particle system (hero) ───────────────────── */
+    (function () {
+      const canvas = document.getElementById('particles');
+      if (!canvas) return;
+      const ctx   = canvas.getContext('2d');
+      const COUNT = 80;
+      let   pts   = [];
+
+      function resize() {
+        canvas.width  = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+      }
+
+      function makeParticle() {
+        return {
+          x:  Math.random() * canvas.width,
+          y:  Math.random() * canvas.height,
+          r:  Math.random() * 1.5 + 0.4,
+          dx: (Math.random() - 0.5) * 0.35,
+          dy: (Math.random() - 0.5) * 0.35,
+          a:  Math.random() * 0.45 + 0.08,
+          gold: Math.random() > 0.72
+        };
+      }
+
+      resize();
+      for (let i = 0; i < COUNT; i++) pts.push(makeParticle());
+
+      function tick() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (const p of pts) {
+          p.x += p.dx;
+          p.y += p.dy;
+          if (p.x <  0)            p.x = canvas.width;
+          if (p.x >  canvas.width) p.x = 0;
+          if (p.y <  0)            p.y = canvas.height;
+          if (p.y >  canvas.height) p.y = 0;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle   = p.gold ? '#C9A84C' : '#ffffff';
+          ctx.globalAlpha = p.a;
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1;
+        requestAnimationFrame(tick);
+      }
+
+      tick();
+      window.addEventListener('resize', resize);
+    })();
+
+    /* ── IntersectionObserver: .reveal-target → .revealed ─────────── */
+    (function () {
+      const targets = document.querySelectorAll('.reveal-target');
+      if (!targets.length) return;
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('revealed');
+              io.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.15 }
+      );
+
+      targets.forEach(el => io.observe(el));
+    })();
+  </script>
+
 </body>
 </html>
