@@ -3,14 +3,448 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Signal — Minerva Admissions</title>
+  <title>Signal Not Noise — Minerva Admissions</title>
+
+  <!-- Mood flash-prevention -->
+  <script>
+    (function () {
+      try {
+        var m = localStorage.getItem('minerva-mood');
+        if (m) document.documentElement.setAttribute('data-mood', m);
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="../css/design-system.css">
   <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/freddy.css">
   <link rel="stylesheet" href="../css/glassmorphism.css">
+
+  <style>
+    /* ══════════════════════════════════════════════════
+       NAV
+    ══════════════════════════════════════════════════ */
+    #nav {
+      position:        fixed;
+      top: 0; left: 0; right: 0;
+      height:          60px;
+      background:      rgba(10,10,20,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom:   1px solid rgba(255,255,255,0.08);
+      display:         flex;
+      align-items:     center;
+      justify-content: space-between;
+      padding:         0 var(--sp-7);
+      z-index:         1000;
+    }
+    .wordmark {
+      font-family:    var(--font-display);
+      font-size:      24px;
+      font-weight:    700;
+      color:          var(--color-gold);
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      transition:     opacity 0.2s ease;
+    }
+    .wordmark:hover { opacity: 0.82; color: var(--color-gold); text-decoration: none; }
+    .nav-links      { display: flex; align-items: center; gap: var(--sp-7); }
+    .nav-link {
+      font-family:    var(--font-body);
+      font-size:      14px;
+      color:          rgba(255,255,255,0.72);
+      text-decoration: none;
+      transition:     color 0.2s ease;
+    }
+    .nav-link:hover   { color: #fff; text-decoration: none; }
+    .nav-link--active { color: #fff; }
+    .nav-mood-btn {
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      width: 36px; height: 36px;
+      border-radius: var(--r-full);
+      background:    rgba(255,255,255,0.07);
+      border:        1px solid rgba(255,255,255,0.12);
+      color:         rgba(255,255,255,0.72);
+      cursor:        pointer;
+      padding:       0;
+      transition:    background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .nav-mood-btn:hover {
+      background:   rgba(201,168,76,0.15);
+      color:        var(--color-gold-light);
+      border-color: rgba(201,168,76,0.35);
+    }
+
+    /* ══════════════════════════════════════════════════
+       PAGE SHELL
+    ══════════════════════════════════════════════════ */
+    body { background: var(--color-cream); }
+    main { padding: 80px var(--sp-5) var(--sp-12); min-height: 100vh; }
+    .signal-shell { max-width: 640px; margin: 0 auto; }
+
+    /* ══════════════════════════════════════════════════
+       PROGRESS DOTS
+    ══════════════════════════════════════════════════ */
+    .progress-dots {
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      gap:             10px;
+      margin-bottom:   var(--sp-8);
+    }
+    .pdot {
+      width:         8px; height: 8px;
+      border-radius: 50%;
+      background:    var(--color-border-strong);
+      transition:    all 0.35s var(--ease-spring);
+      cursor:        default;
+    }
+    .pdot.active {
+      width:      10px; height: 10px;
+      background: var(--color-ink);
+    }
+    .pdot.done { background: var(--color-gold-dim); }
+
+    /* ══════════════════════════════════════════════════
+       SCREEN VIEWPORT  (clips GSAP animation)
+    ══════════════════════════════════════════════════ */
+    #screen-viewport {
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* ══════════════════════════════════════════════════
+       SCREEN SHARED
+    ══════════════════════════════════════════════════ */
+    .signal-screen { width: 100%; }
+
+    .screen-eyebrow {
+      font-family:    var(--font-body);
+      font-size:      10px;
+      font-weight:    500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color:          var(--color-academic);
+      margin-bottom:  var(--sp-4);
+      max-width:      none;
+    }
+
+    .screen-heading {
+      font-family:    var(--font-display);
+      font-size:      clamp(1.4rem, 3.5vw, 1.875rem);
+      font-weight:    700;
+      color:          var(--color-ink);
+      letter-spacing: -0.015em;
+      line-height:    1.2;
+      margin-bottom:  var(--sp-4);
+    }
+
+    .screen-hint {
+      font-family: var(--font-body);
+      font-size:   14px;
+      color:       var(--color-academic);
+      line-height: 1.65;
+      margin-bottom: var(--sp-6);
+      max-width:   none;
+    }
+
+    .screen-sub-num {
+      font-family:    var(--font-body);
+      font-size:      11px;
+      font-weight:    500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color:          var(--color-academic);
+      margin-bottom:  var(--sp-3);
+      max-width:      none;
+    }
+
+    /* ══════════════════════════════════════════════════
+       STAGE 1 — QUESTION CARDS
+    ══════════════════════════════════════════════════ */
+    .q-list { margin-bottom: var(--sp-2); }
+
+    .q-card {
+      display:       block;
+      width:         100%;
+      text-align:    left;
+      padding:       var(--sp-5) var(--sp-6);
+      border:        1.5px solid var(--color-border);
+      border-radius: var(--r-xl);
+      background:    var(--color-surface);
+      cursor:        pointer;
+      font-family:   var(--font-body);
+      font-size:     14px;
+      color:         var(--color-academic);
+      line-height:   1.65;
+      margin-bottom: var(--sp-3);
+      transition:    border-color 150ms ease, background 150ms ease,
+                     color 150ms ease, opacity 150ms ease;
+    }
+    .q-card:hover {
+      border-color: var(--color-border-strong);
+      color:        var(--color-ink);
+    }
+    .q-card.q-selected {
+      border-color: var(--color-ink);
+      background:   rgba(26, 26, 46, 0.04);
+      color:        var(--color-ink);
+      font-weight:  500;
+      border-left:  3px solid var(--color-gold);
+    }
+    .q-card.q-dimmed { opacity: 0.38; pointer-events: none; }
+
+    /* Answer area that appears after selecting a question */
+    .answer-area {
+      background:    var(--color-surface);
+      border:        1px solid var(--color-border);
+      border-radius: var(--r-xl);
+      padding:       var(--sp-6);
+      margin-top:    var(--sp-3);
+      margin-bottom: var(--sp-5);
+    }
+    .answer-area-context {
+      font-family:  var(--font-display);
+      font-size:    0.9rem;
+      font-style:   italic;
+      color:        var(--color-ink);
+      line-height:  1.6;
+      margin-bottom: var(--sp-4);
+      max-width:    none;
+    }
+
+    /* ══════════════════════════════════════════════════
+       SIGNAL TEXTAREA  (used across stages)
+    ══════════════════════════════════════════════════ */
+    .signal-textarea {
+      width:       100%;
+      min-height:  160px;
+      font-size:   15px;
+      line-height: 1.75;
+      resize:      vertical;
+    }
+    .signal-textarea.tall { min-height: 200px; }
+
+    /* ══════════════════════════════════════════════════
+       STAGE 3 — CONTEXT
+    ══════════════════════════════════════════════════ */
+    .context-card {
+      background:    var(--color-surface);
+      border:        1px solid var(--color-border);
+      border-radius: var(--r-xl);
+      padding:       var(--sp-7);
+      margin-bottom: var(--sp-5);
+    }
+
+    /* ══════════════════════════════════════════════════
+       STAGE 4 — SIGNAL SUMMARY
+    ══════════════════════════════════════════════════ */
+    .qualities-list { margin-bottom: var(--sp-7); }
+
+    .quality-item {
+      display:       flex;
+      align-items:   center;
+      gap:           var(--sp-3);
+      padding:       var(--sp-4) var(--sp-5);
+      border-left:   3px solid var(--color-gold);
+      background:    rgba(201, 168, 76, 0.06);
+      border-radius: 0 var(--r-lg) var(--r-lg) 0;
+      margin-bottom: var(--sp-3);
+      font-family:   var(--font-body);
+      font-size:     14px;
+      font-weight:   500;
+      color:         var(--color-ink);
+      line-height:   1.4;
+      animation:     quality-appear 0.4s var(--ease-spring) both;
+    }
+
+    @keyframes quality-appear {
+      from { opacity: 0; transform: translateX(-10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .stage4-actions {
+      display:   flex;
+      gap:       var(--sp-4);
+      flex-wrap: wrap;
+      margin-bottom: var(--sp-5);
+    }
+
+    /* ══════════════════════════════════════════════════
+       STAGE 5 — AUTHENTICITY RADIO
+    ══════════════════════════════════════════════════ */
+    .auth-radio-group {
+      display:       flex;
+      flex-wrap:     wrap;
+      gap:           8px;
+      margin-bottom: var(--sp-6);
+    }
+    .auth-pill {
+      display:       flex;
+      align-items:   center;
+      gap:           6px;
+      padding:       9px 18px;
+      border:        1.5px solid var(--color-border);
+      border-radius: var(--r-full);
+      cursor:        pointer;
+      font-family:   var(--font-body);
+      font-size:     14px;
+      font-weight:   400;
+      color:         var(--color-academic);
+      transition:    all 150ms ease;
+      user-select:   none;
+    }
+    .auth-pill input { display: none; }
+    .auth-pill:hover { border-color: var(--color-border-strong); color: var(--color-ink); }
+    .auth-pill:has(input:checked) {
+      border-color: var(--color-border-focus);
+      background:   rgba(45,53,97,0.07);
+      color:        var(--color-ink);
+      font-weight:  500;
+    }
+
+    /* ══════════════════════════════════════════════════
+       STAGE 6 — EXPORT
+    ══════════════════════════════════════════════════ */
+    .signal-output-card {
+      padding:       var(--sp-7);
+      margin-bottom: var(--sp-6);
+    }
+
+    .signal-output-label {
+      font-family:    var(--font-body);
+      font-size:      10px;
+      font-weight:    500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color:          var(--color-gold-dim);
+      margin-bottom:  var(--sp-4);
+      display:        block;
+      max-width:      none;
+    }
+
+    .signal-output-text {
+      font-family:  var(--font-display);
+      font-size:    1.0625rem;
+      line-height:  1.8;
+      color:        var(--dark-text, #E8E6E0);
+      font-style:   italic;
+      max-width:    none;
+    }
+
+    .export-actions {
+      display:   flex;
+      gap:       var(--sp-4);
+      flex-wrap: wrap;
+      margin-bottom: var(--sp-5);
+    }
+
+    /* Copy confirmation flash */
+    .btn-copy-done {
+      background: var(--color-sage) !important;
+      color:      #fff !important;
+    }
+
+    /* ══════════════════════════════════════════════════
+       NAV ROW  (Back / Continue)
+    ══════════════════════════════════════════════════ */
+    .signal-nav-row {
+      display:         flex;
+      justify-content: space-between;
+      align-items:     center;
+      padding:         var(--sp-5) 0 var(--sp-9);
+    }
+    .signal-nav-row.single { justify-content: flex-end; }
+
+    /* ══════════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      #nav    { padding: 0 var(--sp-5); }
+      .nav-links { gap: var(--sp-4); }
+      .context-card { padding: var(--sp-5); }
+      .signal-output-card { padding: var(--sp-5); }
+    }
+    @media (max-width: 480px) {
+      .nav-link:not(.nav-link--active) { display: none; }
+      .stage4-actions { flex-direction: column; }
+      .export-actions { flex-direction: column; }
+    }
+  </style>
 </head>
 <body>
 
+  <!-- OS Detection -->
+  <script>
+    (function () {
+      var ua  = navigator.userAgent;
+      var cls = /iPhone|iPad|iPod|Android/i.test(ua) ? 'os-mobile'
+              : /Mac/i.test(ua)                       ? 'os-mac'
+              : /Win/i.test(ua)                       ? 'os-win'
+              : /Linux/i.test(ua)                     ? 'os-linux'
+              : '';
+      if (cls) document.documentElement.classList.add(cls);
+    })();
+  </script>
+
+  <!-- Navigation -->
+  <header id="nav" role="banner">
+    <a href="../index.html" class="wordmark" aria-label="Minerva — go home">MINERVA</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="../apply/index.html" class="nav-link">Apply</a>
+      <a href="index.html"          class="nav-link nav-link--active">Signal Not Noise</a>
+      <a href="../ledger/index.html" class="nav-link">Verification Ledger</a>
+      <button class="nav-mood-btn" id="mood-toggle" aria-label="Change mood theme" type="button">
+        <svg viewBox="0 0 20 20" width="18" height="18" fill="currentColor" aria-hidden="true">
+          <polygon points="3,11 5,5 7,10"/>
+          <polygon points="17,11 15,5 13,10"/>
+          <ellipse cx="10" cy="13" rx="6" ry="5"/>
+          <circle cx="8"  cy="12.5" r="1" fill="rgba(0,0,0,0.5)"/>
+          <circle cx="12" cy="12.5" r="1" fill="rgba(0,0,0,0.5)"/>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="signal-shell">
+
+      <!-- Stage progress dots (1–6) -->
+      <div class="progress-dots" id="progress-dots" role="progressbar"
+           aria-label="Stage progress" aria-valuemin="1" aria-valuemax="6" aria-valuenow="1">
+        <div class="pdot active" data-stage="1"></div>
+        <div class="pdot"        data-stage="2"></div>
+        <div class="pdot"        data-stage="3"></div>
+        <div class="pdot"        data-stage="4"></div>
+        <div class="pdot"        data-stage="5"></div>
+        <div class="pdot"        data-stage="6"></div>
+      </div>
+
+      <!-- Screen viewport — GSAP animates contents -->
+      <div id="screen-viewport"></div>
+
+      <!-- Persistent navigation row -->
+      <div class="signal-nav-row" id="signal-nav-row">
+        <button class="btn btn-secondary" id="sn-back"     type="button" style="visibility:hidden">← Back</button>
+        <button class="btn btn-primary"   id="sn-continue" type="button">Continue →</button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"
+          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <script src="../js/mood.js"></script>
   <script src="../js/freddy.js"></script>
   <script src="../js/signal.js"></script>
+
 </body>
 </html>

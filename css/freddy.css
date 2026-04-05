@@ -483,6 +483,70 @@
 }
 
 .cc-actions .btn {
+  flex:       1;
+  font-size:  13px;
+  min-height: 36px;
+  padding:    7px 10px;
+}
+
+
+/* ════════════════════════════════════════════════════════════════
+   MOOD VISUAL ENHANCEMENTS
+════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────
+   INSPIRED — heading shimmer + collar glow
+───────────────────────────────────────────────────────────── */
+[data-mood="inspired"] h1,
+[data-mood="inspired"] h2,
+[data-mood="inspired"] .hero-headline,
+[data-mood="inspired"] .features-title,
+[data-mood="inspired"] .step-title,
+[data-mood="inspired"] .cx-heading {
+  background:             linear-gradient(90deg, #C9A84C 0%, #F7E08A 40%, #C9A84C 80%);
+  background-size:        200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip:         text;
+  animation:               inspired-shimmer 3.5s linear infinite;
+}
+
+@keyframes inspired-shimmer {
+  from { background-position: 200% center; }
+  to   { background-position: 0%   center; }
+}
+
+/* Freddy gold collar glow in INSPIRED mode */
+[data-mood="inspired"] #freddy-svg {
+  filter: drop-shadow(0 0 6px rgba(201, 168, 76, 0.55));
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   NERVOUS — reduce font weights one step
+───────────────────────────────────────────────────────────── */
+[data-mood="nervous"] .form-label  { font-weight: 400; }
+[data-mood="nervous"] .btn         { font-weight: 400; }
+[data-mood="nervous"] .step-title,
+[data-mood="nervous"] .features-title,
+[data-mood="nervous"] .hero-headline { font-weight: 500; }
+
+
+/* ─────────────────────────────────────────────────────────────
+   CHAOTIC — faster Freddy states
+   (JS sets speedMult = 1.5, these CSS overrides visually match)
+───────────────────────────────────────────────────────────── */
+[data-mood="chaotic"] .freddy-walking #freddy-inner {
+  animation-duration: 165ms;
+}
+[data-mood="chaotic"] .freddy-running #freddy-inner {
+  animation-duration: 120ms;
+}
+[data-mood="chaotic"] .freddy-sprinting #freddy-inner {
+  animation-duration: 73ms;
+}
+
+.cc-actions .btn {
   flex:        1;
   font-size:   13px;
   min-height:  36px;

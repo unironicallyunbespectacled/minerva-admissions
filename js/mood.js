@@ -337,4 +337,52 @@
     if (introEl) introEl.textContent = moodCfg.introText;
   });
 
+
+  /* ─────────────────────────────────────────────────────────────
+     8. CHAOTIC RANDOM BAT
+     Every 30 seconds while in CHAOTIC mood, 3% chance Freddy
+     bats at a random .btn or .card visible in the viewport.
+  ───────────────────────────────────────────────────────────── */
+  var _chaoticBatInterval = null;
+
+  function _startChaoticBat() {
+    _stopChaoticBat();
+    _chaoticBatInterval = setInterval(function () {
+      if (document.documentElement.getAttribute('data-mood') !== 'chaotic') return;
+      if (Math.random() > 0.03) return;
+
+      var freddyEl = document.getElementById('freddy');
+      if (!freddyEl || freddyEl.classList.contains('freddy-bat')) return;
+
+      /* Pick a random element that's fully in view */
+      var candidates = Array.from(
+        document.querySelectorAll('.btn:not([disabled]), .card, .feature-card')
+      ).filter(function (el) {
+        var r = el.getBoundingClientRect();
+        return r.top >= 0 && r.bottom <= window.innerHeight &&
+               r.left >= 0 && r.right <= window.innerWidth;
+      });
+      if (!candidates.length) return;
+
+      freddyEl.classList.add('freddy-bat');
+      setTimeout(function () { freddyEl.classList.remove('freddy-bat'); }, 420);
+    }, 30000);
+  }
+
+  function _stopChaoticBat() {
+    if (_chaoticBatInterval) {
+      clearInterval(_chaoticBatInterval);
+      _chaoticBatInterval = null;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (activeMood === 'chaotic') _startChaoticBat();
+  });
+
+  document.addEventListener('minerva:mood', function (e) {
+    if (e.detail.mood === 'chaotic') _startChaoticBat();
+    else _stopChaoticBat();
+  });
+
 })();

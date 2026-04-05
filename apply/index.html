@@ -4,13 +4,929 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Apply — Minerva Admissions</title>
+
+  <!-- Mood flash-prevention -->
+  <script>
+    (function () {
+      try {
+        var m = localStorage.getItem('minerva-mood');
+        if (m) document.documentElement.setAttribute('data-mood', m);
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="../css/design-system.css">
   <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/freddy.css">
   <link rel="stylesheet" href="../css/glassmorphism.css">
+
+  <style>
+    /* ══════════════════════════════════════════════════
+       NAV  (mirrors index.html)
+    ══════════════════════════════════════════════════ */
+    #nav {
+      position:        fixed;
+      top: 0; left: 0; right: 0;
+      height:          60px;
+      background:      rgba(10, 10, 20, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom:   1px solid rgba(255,255,255,0.08);
+      display:         flex;
+      align-items:     center;
+      justify-content: space-between;
+      padding:         0 var(--sp-7);
+      z-index:         1000;
+    }
+    .wordmark {
+      font-family: var(--font-display);
+      font-size:   24px;
+      font-weight: 700;
+      color:       var(--color-gold);
+      text-decoration: none;
+      letter-spacing:  0.08em;
+      transition:  opacity 0.2s ease;
+    }
+    .wordmark:hover { opacity: 0.82; color: var(--color-gold); text-decoration: none; }
+    .nav-links {
+      display:     flex;
+      align-items: center;
+      gap:         var(--sp-7);
+    }
+    .nav-link {
+      font-family: var(--font-body);
+      font-size:   14px;
+      color:       rgba(255,255,255,0.72);
+      text-decoration: none;
+      transition:  color 0.2s ease;
+    }
+    .nav-link:hover         { color: #fff; text-decoration: none; }
+    .nav-link--active       { color: #fff; }
+    .nav-mood-btn {
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      width:  36px; height: 36px;
+      border-radius: var(--r-full);
+      background:    rgba(255,255,255,0.07);
+      border:        1px solid rgba(255,255,255,0.12);
+      color:         rgba(255,255,255,0.72);
+      cursor:        pointer;
+      padding:       0;
+      transition:    background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .nav-mood-btn:hover {
+      background:   rgba(201,168,76,0.15);
+      color:        var(--color-gold-light);
+      border-color: rgba(201,168,76,0.35);
+    }
+
+    /* ══════════════════════════════════════════════════
+       LAYOUT
+    ══════════════════════════════════════════════════ */
+    body   { background: var(--color-cream); }
+    main   { padding: 80px var(--sp-5) var(--sp-12); min-height: 100vh; }
+    .form-shell { max-width: 640px; margin: 0 auto; }
+
+    /* ══════════════════════════════════════════════════
+       AUTO-SAVE INDICATOR
+    ══════════════════════════════════════════════════ */
+    .save-row {
+      display:         flex;
+      align-items:     center;
+      justify-content: flex-end;
+      gap:             6px;
+      min-height:      24px;
+      margin-bottom:   var(--sp-3);
+    }
+    .save-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background:    var(--color-sage);
+      opacity:       0;
+      transition:    opacity 0.3s ease;
+    }
+    .save-dot.visible { opacity: 1; }
+    .save-dot.saving  {
+      background: var(--color-amber);
+      animation:  save-pulse 0.8s ease infinite;
+    }
+    @keyframes save-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .save-text {
+      font-family: var(--font-body);
+      font-size:   12px;
+      color:       var(--color-academic);
+    }
+
+    /* ══════════════════════════════════════════════════
+       PROGRESS INDICATOR
+    ══════════════════════════════════════════════════ */
+    .progress-header { margin-bottom: var(--sp-7); }
+    .progress-phases {
+      display:         flex;
+      justify-content: space-between;
+      margin-bottom:   10px;
+    }
+    .phase-label {
+      font-family:    var(--font-body);
+      font-size:      11px;
+      font-weight:    500;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color:          var(--color-academic);
+      transition:     color 0.25s ease;
+    }
+    .phase-label.active   { color: var(--color-ink); }
+    .phase-label.complete { color: var(--color-gold-dim); }
+
+    /* ══════════════════════════════════════════════════
+       STEPS CONTAINER & TRANSITIONS
+    ══════════════════════════════════════════════════ */
+    #steps-viewport { position: relative; overflow: hidden; }
+
+    .form-step         { display: none; }
+    .form-step.step--active { display: block; }
+
+    .step-title {
+      font-family:    var(--font-display);
+      font-size:      clamp(1.5rem, 3.5vw, 2rem);
+      font-weight:    700;
+      color:          var(--color-ink);
+      letter-spacing: -0.015em;
+      line-height:    1.2;
+      margin-bottom:  var(--sp-7);
+    }
+
+    .step-card {
+      background:    var(--color-surface);
+      border:        1px solid var(--color-border);
+      border-radius: var(--r-xl);
+      padding:       var(--sp-7);
+      margin-bottom: var(--sp-5);
+    }
+
+    .step-nav {
+      display:         flex;
+      justify-content: space-between;
+      align-items:     center;
+      padding:         var(--sp-2) 0 var(--sp-9);
+    }
+    .step-nav--right { justify-content: flex-end; }
+
+    /* ══════════════════════════════════════════════════
+       PRONOUNS / RADIO PILLS
+    ══════════════════════════════════════════════════ */
+    .radio-group {
+      display:   flex;
+      flex-wrap: wrap;
+      gap:       8px;
+    }
+    .radio-pill {
+      display:        flex;
+      align-items:    center;
+      gap:            6px;
+      padding:        7px 14px;
+      border:         1.5px solid var(--color-border);
+      border-radius:  var(--r-full);
+      cursor:         pointer;
+      font-family:    var(--font-body);
+      font-size:      13px;
+      color:          var(--color-academic);
+      transition:     border-color 130ms ease, background 130ms ease, color 130ms ease;
+      user-select:    none;
+    }
+    .radio-pill input { display: none; }
+    .radio-pill:hover {
+      border-color: var(--color-border-strong);
+      color:        var(--color-ink);
+    }
+    .radio-pill:has(input:checked) {
+      border-color: var(--color-border-focus);
+      background:   rgba(45, 53, 97, 0.07);
+      color:        var(--color-ink);
+      font-weight:  500;
+    }
+
+    /* ══════════════════════════════════════════════════
+       SUBJECT CHECKBOXES
+    ══════════════════════════════════════════════════ */
+    .checkbox-grid {
+      display:               grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap:                   7px;
+    }
+    .checkbox-item {
+      display:       flex;
+      align-items:   center;
+      gap:           8px;
+      padding:       8px 12px;
+      border:        1.5px solid var(--color-border);
+      border-radius: var(--r-lg);
+      cursor:        pointer;
+      font-family:   var(--font-body);
+      font-size:     13px;
+      color:         var(--color-academic);
+      transition:    border-color 130ms ease, background 130ms ease, color 130ms ease;
+      user-select:   none;
+    }
+    .checkbox-item input { display: none; }
+    .check-box {
+      width:          16px; height: 16px;
+      border:         1.5px solid var(--color-border-strong);
+      border-radius:  var(--r-sm);
+      flex-shrink:    0;
+      display:        flex;
+      align-items:    center;
+      justify-content: center;
+      transition:     background 130ms ease, border-color 130ms ease;
+    }
+    .check-box::after {
+      content:    '';
+      display:    block;
+      width:      4px; height: 7px;
+      border:     1.5px solid #fff;
+      border-top: none;
+      border-left: none;
+      transform:  rotate(45deg) translateY(-1px);
+      opacity:    0;
+      transition: opacity 100ms ease;
+    }
+    .checkbox-item:has(input:checked) {
+      border-color: var(--color-border-focus);
+      background:   rgba(45, 53, 97, 0.05);
+      color:        var(--color-ink);
+    }
+    .checkbox-item:has(input:checked) .check-box {
+      background:   var(--color-ink);
+      border-color: var(--color-ink);
+    }
+    .checkbox-item:has(input:checked) .check-box::after { opacity: 1; }
+
+    /* ══════════════════════════════════════════════════
+       LANGUAGE TAGS
+    ══════════════════════════════════════════════════ */
+    .lang-input-wrap {
+      border:        1.5px solid rgba(26, 26, 46, 0.15);
+      border-radius: 8px;
+      padding:       7px 10px;
+      display:       flex;
+      flex-wrap:     wrap;
+      gap:           5px;
+      align-items:   center;
+      cursor:        text;
+      min-height:    44px;
+      transition:    border-color 150ms ease, box-shadow 150ms ease;
+    }
+    .lang-input-wrap:focus-within {
+      border-color: var(--color-border-focus);
+      box-shadow:   0 0 0 3px rgba(45, 53, 97, 0.10);
+    }
+    .lang-tag {
+      display:       flex;
+      align-items:   center;
+      gap:           4px;
+      padding:       2px 10px 2px 10px;
+      background:    rgba(45, 53, 97, 0.10);
+      border-radius: var(--r-full);
+      font-family:   var(--font-body);
+      font-size:     12px;
+      font-weight:   500;
+      color:         var(--color-ink);
+      white-space:   nowrap;
+    }
+    .lang-tag-x {
+      background:  none;
+      border:      none;
+      padding:     0;
+      cursor:      pointer;
+      color:       var(--color-academic);
+      font-size:   16px;
+      line-height: 1;
+      display:     flex;
+      align-items: center;
+      margin-left: 2px;
+    }
+    .lang-tag-x:hover { color: var(--color-terra); }
+    #lang-input {
+      flex:        1;
+      min-width:   80px;
+      border:      none;
+      outline:     none;
+      background:  transparent;
+      font-family: var(--font-body);
+      font-size:   14px;
+      color:       var(--color-ink);
+      padding:     2px 4px;
+    }
+
+    /* ══════════════════════════════════════════════════
+       ACCOMPLISHMENT BLOCKS
+    ══════════════════════════════════════════════════ */
+    .acc-block {
+      border:        1px solid var(--color-border);
+      border-radius: var(--r-xl);
+      padding:       var(--sp-6);
+      margin-bottom: var(--sp-5);
+    }
+    .acc-block-header {
+      display:         flex;
+      align-items:     center;
+      justify-content: space-between;
+      margin-bottom:   var(--sp-5);
+    }
+    .acc-block-num {
+      font-family:    var(--font-body);
+      font-size:      11px;
+      font-weight:    500;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color:          var(--color-academic);
+    }
+    .acc-remove-btn {
+      font-family: var(--font-body);
+      font-size:   12px;
+      color:       var(--color-academic);
+      background:  none;
+      border:      none;
+      cursor:      pointer;
+      padding:     4px 8px;
+      border-radius: var(--r-md);
+      transition:  color 130ms ease, background 130ms ease;
+    }
+    .acc-remove-btn:hover { color: var(--color-terra); background: var(--color-terra-bg); }
+    .acc-word-row {
+      display:         flex;
+      justify-content: flex-end;
+      margin-top:      4px;
+    }
+    .acc-word-count {
+      font-family: var(--font-body);
+      font-size:   12px;
+      color:       var(--color-academic);
+    }
+
+    #add-acc-btn {
+      width:         100%;
+      border:        2px dashed var(--color-border);
+      background:    transparent;
+      border-radius: var(--r-xl);
+      padding:       var(--sp-4);
+      font-family:   var(--font-body);
+      font-size:     13px;
+      color:         var(--color-academic);
+      cursor:        pointer;
+      transition:    border-color 130ms ease, color 130ms ease, background 130ms ease;
+      margin-bottom: var(--sp-5);
+    }
+    #add-acc-btn:hover {
+      border-color: var(--color-gold-dim);
+      color:        var(--color-gold-dim);
+      background:   rgba(201, 168, 76, 0.04);
+    }
+
+    /* ══════════════════════════════════════════════════
+       ESSAYS
+    ══════════════════════════════════════════════════ */
+    .essay-wrap  { margin-bottom: var(--sp-6); }
+    .essay-eyebrow {
+      font-family:    var(--font-body);
+      font-size:      10px;
+      font-weight:    500;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+      color:          var(--color-academic);
+      margin-bottom:  var(--sp-3);
+      max-width: none;
+    }
+    .essay-prompt {
+      font-family:   var(--font-display);
+      font-size:     1rem;
+      font-weight:   500;
+      font-style:    italic;
+      color:         var(--color-ink);
+      line-height:   1.6;
+      margin-bottom: var(--sp-4);
+      max-width:     none;
+    }
+    .essay-textarea {
+      width:       100%;
+      min-height:  200px;
+      font-size:   16px;
+      line-height: 1.75;
+      resize:      vertical;
+    }
+    .essay-footer {
+      display:         flex;
+      justify-content: space-between;
+      align-items:     center;
+      margin-top:      6px;
+    }
+    .essay-hint {
+      font-family: var(--font-body);
+      font-size:   12px;
+      color:       var(--color-academic);
+      font-style:  italic;
+    }
+    .word-counter {
+      font-family:       var(--font-body);
+      font-size:         12px;
+      color:             var(--color-academic);
+      font-variant-numeric: tabular-nums;
+      transition:        color 0.3s ease;
+    }
+    .word-counter.at-halfway { color: var(--color-gold); }
+    .word-counter.at-limit   { color: var(--color-sage); }
+    .word-counter.over-limit { color: var(--color-terra); }
+
+    /* ══════════════════════════════════════════════════
+       REVIEW STEP
+    ══════════════════════════════════════════════════ */
+    .review-section { margin-bottom: var(--sp-6); }
+    .review-head {
+      display:         flex;
+      align-items:     center;
+      justify-content: space-between;
+      padding:         8px 0;
+      border-bottom:   1px solid var(--color-border);
+      margin-bottom:   var(--sp-3);
+    }
+    .review-section-label {
+      font-family:    var(--font-body);
+      font-size:      11px;
+      font-weight:    500;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color:          var(--color-academic);
+    }
+    .review-edit-btn {
+      font-family: var(--font-body);
+      font-size:   12px;
+      color:       var(--color-gold-dim);
+      background:  none;
+      border:      none;
+      cursor:      pointer;
+      padding:     0;
+      transition:  color 130ms ease;
+    }
+    .review-edit-btn:hover { color: var(--color-gold); }
+    .review-row {
+      display:     flex;
+      gap:         var(--sp-4);
+      padding:     5px 0;
+      font-family: var(--font-body);
+      font-size:   13px;
+    }
+    .review-key {
+      flex-shrink: 0;
+      width:       150px;
+      color:       var(--color-academic);
+    }
+    .review-val {
+      flex:  1;
+      color: var(--color-ink);
+      word-break: break-word;
+    }
+
+    /* ══════════════════════════════════════════════════
+       CONFIRM CHECKS + SUBMIT
+    ══════════════════════════════════════════════════ */
+    .confirm-list {
+      display:        flex;
+      flex-direction: column;
+      gap:            var(--sp-3);
+      margin-bottom:  var(--sp-6);
+    }
+    .confirm-item {
+      display:     flex;
+      align-items: flex-start;
+      gap:         12px;
+      cursor:      pointer;
+    }
+    .confirm-item input[type="checkbox"] {
+      width:       18px; height: 18px;
+      flex-shrink: 0;
+      margin-top:  2px;
+      accent-color: var(--color-ink);
+      cursor:      pointer;
+    }
+    .confirm-label {
+      font-family: var(--font-body);
+      font-size:   14px;
+      color:       var(--color-ink);
+      line-height: 1.5;
+      max-width:   none;
+    }
+
+    /* ══════════════════════════════════════════════════
+       ERROR STATE
+    ══════════════════════════════════════════════════ */
+    .form-group.has-error .input,
+    .form-group.has-error .lang-input-wrap { border-color: var(--color-terra); }
+    .form-group.has-error .form-error      { display: flex !important; }
+    .form-error { display: none; }
+
+    /* ══════════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      #nav { padding: 0 var(--sp-5); }
+      .nav-links { gap: var(--sp-4); }
+      .step-card { padding: var(--sp-5); }
+      .checkbox-grid { grid-template-columns: 1fr; }
+      .review-key { width: 110px; }
+    }
+    @media (max-width: 480px) {
+      .nav-link:not(.nav-link--active) { display: none; }
+    }
+  </style>
 </head>
 <body>
 
+  <!-- OS Detection -->
+  <script>
+    (function () {
+      var ua  = navigator.userAgent;
+      var cls = /iPhone|iPad|iPod|Android/i.test(ua) ? 'os-mobile'
+              : /Mac/i.test(ua)                       ? 'os-mac'
+              : /Win/i.test(ua)                       ? 'os-win'
+              : /Linux/i.test(ua)                     ? 'os-linux'
+              : '';
+      if (cls) document.documentElement.classList.add(cls);
+    })();
+  </script>
+
+  <!-- Navigation -->
+  <header id="nav" role="banner">
+    <a href="../index.html" class="wordmark" aria-label="Minerva — go home">MINERVA</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="index.html"           class="nav-link nav-link--active">Apply</a>
+      <a href="../signal/index.html" class="nav-link">Signal Not Noise</a>
+      <a href="../ledger/index.html" class="nav-link">Verification Ledger</a>
+      <button class="nav-mood-btn" id="mood-toggle" aria-label="Change mood theme" type="button">
+        <svg viewBox="0 0 20 20" width="18" height="18" fill="currentColor" aria-hidden="true">
+          <polygon points="3,11 5,5 7,10"/>
+          <polygon points="17,11 15,5 13,10"/>
+          <ellipse cx="10" cy="13" rx="6" ry="5"/>
+          <circle cx="8"  cy="12.5" r="1" fill="rgba(0,0,0,0.5)"/>
+          <circle cx="12" cy="12.5" r="1" fill="rgba(0,0,0,0.5)"/>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="form-shell">
+
+      <!-- Auto-save indicator -->
+      <div class="save-row" aria-live="polite">
+        <div class="save-dot" id="save-dot"></div>
+        <span class="save-text" id="save-text"></span>
+      </div>
+
+      <!-- Progress indicator — 4 phases shown -->
+      <div class="progress-header">
+        <div class="progress-phases" role="list" aria-label="Application progress">
+          <span class="phase-label active" data-phase="1" role="listitem">Background</span>
+          <span class="phase-label"        data-phase="2" role="listitem">Academic</span>
+          <span class="phase-label"        data-phase="3" role="listitem">Essays</span>
+          <span class="phase-label"        data-phase="4" role="listitem">Submit</span>
+        </div>
+        <div class="progress-track" role="progressbar" aria-valuenow="1" aria-valuemin="1" aria-valuemax="6">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- Steps viewport (overflow:hidden clips the slide transition) -->
+      <div id="steps-viewport">
+
+        <!-- ════════════════════════════════
+             STEP 1 — Basic Identity
+        ════════════════════════════════ -->
+        <div class="form-step step--active" id="step-1" data-step="1">
+          <h2 class="step-title">Let's start with who you are.</h2>
+          <div class="step-card">
+
+            <div class="form-group" id="fg-given-name">
+              <label class="form-label" for="given-name">Given name</label>
+              <input class="input" type="text" id="given-name" name="givenName"
+                     autocomplete="given-name" placeholder="Your first name">
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group" id="fg-family-name">
+              <label class="form-label" for="family-name">Family name</label>
+              <input class="input" type="text" id="family-name" name="familyName"
+                     autocomplete="family-name" placeholder="Your last name">
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="preferred-name">
+                Preferred name
+                <span style="font-weight:400;color:var(--color-academic)">(optional)</span>
+              </label>
+              <input class="input" type="text" id="preferred-name" name="preferredName"
+                     autocomplete="nickname" placeholder="What your friends call you">
+              <p class="form-hint">Leave blank if same as given name</p>
+            </div>
+
+            <div class="form-group" id="fg-pronouns">
+              <label class="form-label">Pronouns</label>
+              <div class="radio-group" role="radiogroup" aria-label="Pronouns">
+                <label class="radio-pill"><input type="radio" name="pronouns" value="she/her">   She/her</label>
+                <label class="radio-pill"><input type="radio" name="pronouns" value="he/him">    He/him</label>
+                <label class="radio-pill"><input type="radio" name="pronouns" value="they/them"> They/them</label>
+                <label class="radio-pill"><input type="radio" name="pronouns" value="prefer-not-to-say"> Prefer not to say</label>
+                <label class="radio-pill"><input type="radio" name="pronouns" value="other">     Other</label>
+              </div>
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group" id="fg-country-origin">
+              <label class="form-label" for="country-origin">Country of origin</label>
+              <select class="input" id="country-origin" name="countryOrigin">
+                <option value="">Select a country</option>
+              </select>
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group" id="fg-country-study">
+              <label class="form-label" for="country-study">Country where you currently study</label>
+              <select class="input" id="country-study" name="countryStudy">
+                <option value="">Select a country</option>
+              </select>
+              <div class="form-error"></div>
+            </div>
+
+          </div><!-- /.step-card -->
+          <div class="step-nav step-nav--right">
+            <button class="btn btn-primary" id="next-1" type="button">Next →</button>
+          </div>
+        </div><!-- /step-1 -->
+
+
+        <!-- ════════════════════════════════
+             STEP 2 — Contact
+        ════════════════════════════════ -->
+        <div class="form-step" id="step-2" data-step="2">
+          <h2 class="step-title">How can we reach you?</h2>
+          <div class="step-card">
+
+            <div class="form-group" id="fg-email">
+              <label class="form-label" for="email">Email address</label>
+              <input class="input" type="email" id="email" name="email"
+                     autocomplete="email" placeholder="you@example.com">
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="phone">
+                Phone <span style="font-weight:400;color:var(--color-academic)">(optional)</span>
+              </label>
+              <input class="input" type="tel" id="phone" name="phone"
+                     autocomplete="tel" placeholder="+1 234 567 8900">
+              <p class="form-hint">International format preferred</p>
+            </div>
+
+            <div class="form-group" id="fg-school-name">
+              <label class="form-label" for="school-name">Current school name</label>
+              <input class="input" type="text" id="school-name" name="schoolName"
+                     placeholder="Your school or college">
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group" id="fg-grade">
+              <label class="form-label" for="grade">Grade or year</label>
+              <select class="input" id="grade" name="grade">
+                <option value="">Select grade or year</option>
+                <option value="9">Grade 9</option>
+                <option value="10">Grade 10</option>
+                <option value="11">Grade 11</option>
+                <option value="12">Grade 12</option>
+                <option value="gap">Gap year</option>
+                <option value="graduated">Graduated</option>
+              </select>
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="how-heard">How did you hear about Minerva?</label>
+              <select class="input" id="how-heard" name="howHeard">
+                <option value="">Select an option</option>
+                <option value="friend">Friend or classmate</option>
+                <option value="teacher">Teacher or counsellor</option>
+                <option value="social">Social media</option>
+                <option value="search">Search engine</option>
+                <option value="event">School event or fair</option>
+                <option value="news">News or article</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+          </div>
+          <div class="step-nav">
+            <button class="btn btn-secondary" id="back-2" type="button">← Back</button>
+            <button class="btn btn-primary"   id="next-2" type="button">Next →</button>
+          </div>
+        </div><!-- /step-2 -->
+
+
+        <!-- ════════════════════════════════
+             STEP 3 — Academic History
+        ════════════════════════════════ -->
+        <div class="form-step" id="step-3" data-step="3">
+          <h2 class="step-title">Tell us about your studies.</h2>
+          <div class="step-card">
+
+            <div class="form-group" id="fg-grading-system">
+              <label class="form-label" for="grading-system">Grading system at your school</label>
+              <select class="input" id="grading-system" name="gradingSystem">
+                <option value="">Select grading system</option>
+                <option value="gpa">GPA (US scale)</option>
+                <option value="ib">International Baccalaureate (IB)</option>
+                <option value="a-levels">A-Levels</option>
+                <option value="percentage">Percentage</option>
+                <option value="other">Other</option>
+              </select>
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group" id="fg-score">
+              <label class="form-label" for="score">Your current score or GPA</label>
+              <input class="input" type="text" id="score" name="score" placeholder="e.g. 3.8">
+              <p class="form-hint" id="score-hint">Select a grading system above for scale guidance.</p>
+              <div class="form-error"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                Strongest subjects
+                <span style="font-weight:400;color:var(--color-academic)">(select all that apply)</span>
+              </label>
+              <div class="checkbox-grid" id="subjects-grid"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                Standardised test scores
+                <span style="font-weight:400;color:var(--color-academic)">(optional)</span>
+              </label>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;gap:10px;align-items:center">
+                  <span style="font-family:var(--font-body);font-size:13px;color:var(--color-academic);width:44px;flex-shrink:0">SAT</span>
+                  <input class="input" type="text" id="sat" name="sat" placeholder="e.g. 1450" style="flex:1">
+                </div>
+                <div style="display:flex;gap:10px;align-items:center">
+                  <span style="font-family:var(--font-body);font-size:13px;color:var(--color-academic);width:44px;flex-shrink:0">ACT</span>
+                  <input class="input" type="text" id="act" name="act" placeholder="e.g. 32" style="flex:1">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="lang-input">Languages spoken</label>
+              <div class="lang-input-wrap" id="lang-input-wrap">
+                <div id="lang-tags-container" style="display:contents"></div>
+                <input type="text" id="lang-input" placeholder="Type a language, press Enter to add" autocomplete="off">
+              </div>
+              <p class="form-hint">Press Enter or comma to add each language</p>
+              <input type="hidden" id="languages-hidden" name="languages" value="">
+            </div>
+
+          </div>
+          <div class="step-nav">
+            <button class="btn btn-secondary" id="back-3" type="button">← Back</button>
+            <button class="btn btn-primary"   id="next-3" type="button">Next →</button>
+          </div>
+        </div><!-- /step-3 -->
+
+
+        <!-- ════════════════════════════════
+             STEP 4 — Accomplishments
+        ════════════════════════════════ -->
+        <div class="form-step" id="step-4" data-step="4">
+          <h2 class="step-title">What have you done that matters to you?</h2>
+
+          <p style="font-family:var(--font-body);font-size:14px;color:var(--color-academic);line-height:1.7;margin-bottom:var(--sp-6);max-width:none">
+            Do not limit yourself to things that appear on school websites. If you fed your family, ran a business, won a competition that only exists on Facebook — tell us. We want to know.
+          </p>
+
+          <div id="acc-blocks-container"></div>
+
+          <button type="button" id="add-acc-btn">+ Add Another Accomplishment</button>
+
+          <p style="font-family:var(--font-body);font-size:13px;color:var(--color-academic);margin-bottom:var(--sp-6);max-width:none">
+            Having trouble describing it?
+            <a href="../signal/index.html" style="color:var(--color-gold-dim)">Try Signal Not Noise →</a>
+          </p>
+
+          <div class="step-nav">
+            <button class="btn btn-secondary" id="back-4" type="button">← Back</button>
+            <button class="btn btn-primary"   id="next-4" type="button">Next →</button>
+          </div>
+        </div><!-- /step-4 -->
+
+
+        <!-- ════════════════════════════════
+             STEP 5 — Essays
+        ════════════════════════════════ -->
+        <div class="form-step" id="step-5" data-step="5">
+          <h2 class="step-title">Now we want to hear you think.</h2>
+
+          <!-- Essay 1 -->
+          <div class="essay-wrap">
+            <div class="step-card">
+              <p class="essay-eyebrow">Essay 1 · 300 words</p>
+              <p class="essay-prompt">"Describe a problem you noticed and did something about. It does not need to be big. It needs to be real."</p>
+              <div class="form-group" id="fg-essay1">
+                <textarea class="input essay-textarea" id="essay1" name="essay1"
+                          data-max-words="300" rows="9"
+                          placeholder="Start writing here…"></textarea>
+                <div class="essay-footer">
+                  <span class="essay-hint" id="essay1-hint"></span>
+                  <span class="word-counter" id="essay1-counter" aria-live="polite">0 / 300</span>
+                </div>
+                <div class="form-error"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Essay 2 -->
+          <div class="essay-wrap">
+            <div class="step-card">
+              <p class="essay-eyebrow">Essay 2 · 500 words</p>
+              <p class="essay-prompt">"Tell us about something you know deeply — something you could explain to a stranger for an hour and still have more to say."</p>
+              <div class="form-group" id="fg-essay2">
+                <textarea class="input essay-textarea" id="essay2" name="essay2"
+                          data-max-words="500" rows="12"
+                          placeholder="Start writing here…"></textarea>
+                <div class="essay-footer">
+                  <span class="essay-hint" id="essay2-hint"></span>
+                  <span class="word-counter" id="essay2-counter" aria-live="polite">0 / 500</span>
+                </div>
+                <div class="form-error"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step-nav">
+            <button class="btn btn-secondary" id="back-5" type="button">← Back</button>
+            <button class="btn btn-primary"   id="next-5" type="button">Review →</button>
+          </div>
+        </div><!-- /step-5 -->
+
+
+        <!-- ════════════════════════════════
+             STEP 6 — Review & Submit
+        ════════════════════════════════ -->
+        <div class="form-step" id="step-6" data-step="6">
+          <h2 class="step-title">Everything is in. This is your moment.</h2>
+
+          <!-- Summary (populated by JS) -->
+          <div class="step-card" id="review-container">
+            <p style="font-family:var(--font-body);font-size:14px;color:var(--color-academic)">
+              Loading summary…
+            </p>
+          </div>
+
+          <!-- Confirmation & submit -->
+          <div class="step-card">
+            <div class="confirm-list">
+              <label class="confirm-item">
+                <input type="checkbox" id="confirm-own-work" name="confirmOwnWork">
+                <span class="confirm-label">I confirm this is entirely my own work.</span>
+              </label>
+              <label class="confirm-item">
+                <input type="checkbox" id="confirm-terms" name="confirmTerms">
+                <span class="confirm-label">I agree to Minerva's <a href="#">terms of application</a>.</span>
+              </label>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:var(--sp-4)">
+              <button class="btn btn-gold" id="submit-btn" type="button">Submit Application</button>
+              <span id="submit-spinner" style="display:none">
+                <span class="spinner"></span>
+              </span>
+            </div>
+            <div class="form-error" id="submit-error" style="margin-top:var(--sp-3)"></div>
+          </div>
+
+          <div class="step-nav">
+            <button class="btn btn-secondary" id="back-6" type="button">← Back</button>
+          </div>
+        </div><!-- /step-6 -->
+
+      </div><!-- /#steps-viewport -->
+    </div><!-- /.form-shell -->
+  </main>
+
+  <script src="../js/mood.js"></script>
   <script src="../js/freddy.js"></script>
   <script src="../js/form.js"></script>
+
 </body>
 </html>
