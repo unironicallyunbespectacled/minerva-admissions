@@ -265,3 +265,226 @@
   0%, 100% { transform: rotate(-6deg); }
   50%       { transform: rotate(6deg);  }
 }
+
+
+/* ════════════════════════════════════════════════════════════════
+   MOOD SYSTEM
+════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────
+   MOOD CSS VARIABLES
+   Set on <html data-mood="…"> by mood.js before first paint.
+───────────────────────────────────────────────────────────── */
+:root { --mood-accent: #2D3561; }
+
+[data-mood="locked-in"] { --mood-accent: #1A1A2E; }
+[data-mood="curious"]   { --mood-accent: #2D3561; }
+[data-mood="nervous"]   { --mood-accent: #6B8F71; }
+[data-mood="chaotic"]   { --mood-accent: #D4614E; }
+
+/* INSPIRED: override gold tokens so "gold everywhere" is literal */
+[data-mood="inspired"] {
+  --mood-accent:      #C9A84C;
+  --color-gold:       #C9A84C;
+  --color-gold-light: #F7E08A;
+  --color-gold-dim:   #B8963E;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   LOCKED IN — pause decorative animations; Freddy physics
+   also freezes via the JS bridge (spring mult = 0).
+───────────────────────────────────────────────────────────── */
+[data-mood="locked-in"] .hero-bg-pulse,
+[data-mood="locked-in"] #freddy-inner,
+[data-mood="locked-in"] .zzz-bubble,
+[data-mood="locked-in"] #party-hat-group {
+  animation-play-state: paused !important;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   CHAOTIC — hero background alternates between two deep tones
+───────────────────────────────────────────────────────────── */
+[data-mood="chaotic"] #hero {
+  animation: chaotic-hero-bg 2.4s ease-in-out infinite !important;
+}
+
+@keyframes chaotic-hero-bg {
+  0%,  100% { background-color: #000000; }
+  33%        { background-color: #0E0004; }
+  66%        { background-color: #0E0500; }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   MOOD SELECTOR PANEL
+───────────────────────────────────────────────────────────── */
+#mood-panel {
+  position:        fixed;
+  z-index:         9500;
+  padding:         14px;
+  min-width:       210px;
+  display:         flex;
+  flex-direction:  column;
+  gap:             8px;
+  background:      rgba(12, 12, 24, 0.94);
+
+  /* Hidden by default — open class adds visibility */
+  opacity:         0;
+  pointer-events:  none;
+  transform:       translateY(-6px) scale(0.97);
+  transition:
+    opacity   180ms ease,
+    transform 200ms var(--ease-spring);
+}
+
+#mood-panel.mood-panel--open {
+  opacity:        1;
+  pointer-events: auto;
+  transform:      translateY(0) scale(1);
+}
+
+.mood-panel-eyebrow {
+  font-family:    var(--font-body);
+  font-size:      10px;
+  font-weight:    500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color:          var(--dark-text-2, #9B99A8);
+  padding:        0 4px;
+  margin:         0;
+  max-width:      none;
+}
+
+.mood-options {
+  display:        flex;
+  flex-direction: column;
+  gap:            2px;
+}
+
+.mood-btn {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+  padding:     9px 10px;
+  border-radius: var(--r-lg);
+  background:  transparent;
+  border:      none;
+  cursor:      pointer;
+  text-align:  left;
+  width:       100%;
+  transition:  background 130ms ease;
+}
+
+.mood-btn:hover        { background: rgba(255, 255, 255, 0.07); }
+.mood-btn--active      { background: rgba(255, 255, 255, 0.10); }
+.mood-btn--active .mood-btn-label { color: #ffffff; }
+
+.mood-btn-dot {
+  width:         9px;
+  height:        9px;
+  border-radius: var(--r-full);
+  flex-shrink:   0;
+}
+
+.mood-btn-inner {
+  display:        flex;
+  flex-direction: column;
+  gap:            1px;
+}
+
+.mood-btn-label {
+  font-family:    var(--font-body);
+  font-size:      12px;
+  font-weight:    500;
+  letter-spacing: 0.05em;
+  color:          var(--dark-text, #E8E6E0);
+  line-height:    1.3;
+}
+
+.mood-btn-desc {
+  font-family: var(--font-body);
+  font-size:   11px;
+  color:       var(--dark-text-2, #9B99A8);
+  line-height: 1.3;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   COOKIE CONSENT BANNER
+───────────────────────────────────────────────────────────── */
+#cookie-consent {
+  position:       fixed;
+  bottom:         24px;
+  left:           24px;
+  max-width:      320px;
+  padding:        16px;
+  z-index:        9800;
+  background:     rgba(12, 12, 24, 0.94);
+
+  /* Hidden until cc--visible is added */
+  opacity:        0;
+  transform:      translateY(10px);
+  pointer-events: none;
+  transition:     opacity 0.36s ease, transform 0.36s var(--ease-spring);
+}
+
+#cookie-consent.cc--visible {
+  opacity:        1;
+  transform:      translateY(0);
+  pointer-events: auto;
+}
+
+.cc-row {
+  display:       flex;
+  align-items:   flex-start;
+  gap:           12px;
+  margin-bottom: 12px;
+}
+
+/* Freddy trots in place while the banner is visible */
+.cc--visible .cc-freddy {
+  animation: cc-freddy-trot 0.26s steps(2, end) infinite;
+}
+
+.cc-freddy {
+  flex-shrink: 0;
+  margin-top:  2px;
+}
+
+@keyframes cc-freddy-trot {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+
+.cc-title {
+  font-family:   var(--font-display);
+  font-size:     14px;
+  font-weight:   600;
+  color:         var(--dark-text, #E8E6E0);
+  margin-bottom: 4px;
+  max-width:     none;
+  line-height:   1.3;
+}
+
+.cc-body {
+  font-family: var(--font-body);
+  font-size:   12px;
+  color:       var(--dark-text-2, #9B99A8);
+  line-height: 1.55;
+  max-width:   none;
+}
+
+.cc-actions {
+  display: flex;
+  gap:     8px;
+}
+
+.cc-actions .btn {
+  flex:        1;
+  font-size:   13px;
+  min-height:  36px;
+  padding:     7px 10px;
+}

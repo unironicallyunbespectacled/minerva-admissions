@@ -5,6 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minerva Admissions</title>
 
+  <!-- Mood flash-prevention: apply saved mood to <html> before CSS renders -->
+  <script>
+    (function () {
+      try {
+        var m = localStorage.getItem('minerva-mood');
+        if (m) document.documentElement.setAttribute('data-mood', m);
+      } catch (e) {}
+    })();
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -669,9 +679,9 @@
     })();
   </script>
 
-  <!-- 2. Feature scripts -->
-  <script src="js/freddy.js"></script>
+  <!-- 2. Feature scripts — mood.js first so window.__MINERVA is set before freddy.js runs -->
   <script src="js/mood.js"></script>
+  <script src="js/freddy.js"></script>
 
   <!-- 3. Page logic -->
   <script>

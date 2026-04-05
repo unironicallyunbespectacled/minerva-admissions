@@ -359,8 +359,19 @@
      11. ANIMATION LOOP  (requestAnimationFrame)
   ───────────────────────────────────────────────────────────── */
   function animate() {
-    velX += (cursorX - freddyX) * SPRING;
-    velY += (cursorY - freddyY) * SPRING;
+    // mood.js writes window.__MINERVA before this file loads
+    var mult   = (window.__MINERVA && window.__MINERVA.speedMult != null)
+                   ? window.__MINERVA.speedMult : 1;
+    var frozen = window.__MINERVA && window.__MINERVA.freeze;
+
+    if (frozen) {
+      if (!isSleeping) goToSleep();
+      requestAnimationFrame(animate);
+      return;
+    }
+
+    velX += (cursorX - freddyX) * SPRING * mult;
+    velY += (cursorY - freddyY) * SPRING * mult;
     velX *= DAMPING;
     velY *= DAMPING;
     freddyX += velX;
@@ -375,6 +386,11 @@
   }
 
   animate();
+
+  // Wake Freddy when switching away from a frozen mood
+  document.addEventListener('minerva:mood', function (e) {
+    if (!e.detail.freeze && isSleeping) wakeFromSleep();
+  });
 
 
   /* ─────────────────────────────────────────────────────────────
