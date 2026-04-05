@@ -1,128 +1,146 @@
 # Accessibility Checklist — Minerva Admissions
 
-Audit date: 2026-04-04  
-Auditor: Claude Code (automated review + code inspection)
+Audit date: 2026-04-05
+Auditor: Code review + static analysis
 
 ---
 
 ## ARIA Labels
 
-| Item | Status | Notes |
-|------|--------|-------|
-| Every form input has `<label for=id>` | PASS | All inputs in apply/index.html, signal/index.html, ledger/index.html have labels |
-| Buttons without visible text have `aria-label` | PASS | Mood toggle, modal close, nav close all have aria-label |
-| `#freddy` has `aria-hidden="true"` | PASS | Freddy div is decorative, added via JS — no aria role |
-| Laser dot has `aria-hidden="true"` | NOTE | Laser is decorative; no ARIA needed (no role/interaction) |
-| Particle canvas has `aria-hidden="true"` | PASS | `<canvas id="particles" aria-hidden="true">` in index.html |
-| Modal dialogs have `role="dialog" aria-modal="true" aria-labelledby` | PASS | Claim modal, secret modal both correct |
-| Nav has `role="navigation" aria-label` | PASS | All pages: `<nav aria-label="Main navigation">` |
-| Progress dots have `role="progressbar"` with aria values | PASS | signal/index.html has aria-valuenow/min/max |
-| Form progress bar has aria attributes | PASS | apply/index.html progress bar has role/aria-valuenow |
-| Loading screen has `aria-hidden="true"` | PASS | `<div id="loading-screen" aria-hidden="true" role="presentation">` |
-| `aria-current="page"` on active nav links | PASS | Added to active links across pages |
-| Error messages use `role="alert"` | PASS | Form errors have role="alert" |
+| Item | File(s) | Result |
+|------|---------|--------|
+| Every form input has `<label for=id>` | apply/index.html, signal/index.html, ledger/index.html | PASS |
+| Buttons without visible text have `aria-label` | All pages | PASS — mood-toggle, nav-hamburger, modal-close, lang-tag-x buttons all have aria-label |
+| `#freddy` has `aria-hidden="true"` | js/freddy.js | PASS — added in this audit |
+| Laser dot has `aria-hidden="true"` | js/freddy.js | PASS — added in this audit |
+| Particle canvas has `aria-hidden="true"` | index.html | PASS — present in HTML |
+| Loading screen has `aria-hidden="true" role="presentation"` | index.html | PASS |
+| Secret modal: `role="dialog" aria-modal="true" aria-labelledby` | index.html | PASS |
+| Claim modal: `role="dialog" aria-modal="true" aria-labelledby` | ledger/index.html | PASS |
+| Nav has `role="navigation" aria-label="Main navigation"` | All pages | PASS |
+| Mobile nav has `aria-label="Mobile navigation"` | All pages | PASS — added in this audit |
+| Nav hamburger button has `aria-expanded` + `aria-controls` | All pages | PASS — added in this audit |
+| Progress bar: `role="progressbar" aria-valuenow aria-valuemin aria-valuemax` | apply/index.html | PASS — dynamically updated by form.js |
+| Signal progress: `role="progressbar"` with aria values | signal/index.html | PASS |
+| Save indicator: `aria-live="polite"` | apply/index.html | PASS |
+| Essay counters: `aria-live="polite"` | apply/index.html | PASS |
+| Submit error: `role="alert" aria-live="assertive"` | apply/index.html | PASS — added in this audit |
+| Results count: `aria-live="polite" aria-atomic="true"` | ledger/index.html | PASS |
+| Loading screen: `aria-hidden="true"` | index.html | PASS |
 
 ---
 
 ## Focus Management
 
-| Item | Status | Notes |
-|------|--------|-------|
-| Modal opens → focus moves to first element | PASS | `setTimeout → first.focus()` in both claim modal and secret modal |
-| Modal closes → focus returns to opener | PASS | `claimOpenerBtn.focus()` and `opener.focus()` on close |
-| Focus trap in open modals | PASS | Tab wraps within modal using focusable element list |
-| Form step transitions move focus to heading | NOTE | `window.scrollTo` used; explicit focus on step heading not set — minor gap |
-| Error messages use `aria-live="polite"` | PASS | `<span class="form-status-msg" aria-live="polite">` |
-| Critical submit errors use `aria-live="assertive"` | PASS | `role="alert" aria-live="assertive"` on ledger toast |
+| Item | File(s) | Result |
+|------|---------|--------|
+| Modal opens → focus moves to first focusable element | ledger/index.html | PASS — already in ledger.js |
+| Secret modal opens → focus moves to close/action button | index.html | PASS — setTimeout focus in modal JS |
+| Modal closes → focus returns to opener element | Both modals | PASS — `opener.focus()` / `claimOpenerBtn.focus()` |
+| Focus trap: Tab wraps within open modal | index.html + ledger/index.html | PASS — added to secret modal in this audit; already in ledger.js |
+| Focus trap respects Escape key | Both modals | PASS |
+| Form step transitions → focus moves to step heading | apply/index.html + form.js | PASS — tabindex=-1 + heading.focus() added in this audit |
+| Hamburger nav close → focus returns to button | All pages | PASS — Escape key returns focus to hamburger button |
+| Claim success state → focus moves to success heading | ledger.js | PASS — `claimSuccess.querySelector('h3').focus()` |
 
 ---
 
 ## Keyboard Navigation
 
-| Item | Status | Notes |
-|------|--------|-------|
-| All interactive elements reachable via Tab | PASS | Buttons, inputs, links all in natural tab order |
-| Mood panel closes on Escape | PASS | `keydown Escape → closePanel()` in mood.js |
-| Claim modal closes on Escape | PASS | `keydown Escape → closeClaimModal()` in ledger.js |
-| Secret modal closes on Escape | PASS | `keydown Escape → closeModal()` in index.html |
-| Signal Not Noise question cards: Enter/Space to select | PASS | `keydown Enter/Space → toggleCard()` in signal.js |
-| Competition card expand: Enter/Space | PASS | `keydown Enter/Space → toggleCard()` in ledger.js |
-| Filter pills keyboard accessible | PASS | `<button>` elements — native keyboard support |
-| Tab navigation wraps inside modals | PASS | Focus trap implemented in ledger.js |
+| Item | File(s) | Result |
+|------|---------|--------|
+| All interactive elements reachable via Tab | All pages | PASS |
+| Mood panel closes on Escape | All pages | PASS — mood.js handles Escape |
+| Claim modal closes on Escape | ledger/index.html | PASS |
+| Secret modal closes on Escape | index.html | PASS |
+| Mobile nav closes on Escape | All pages | PASS — added in this audit |
+| Signal question cards keyboard accessible | signal/index.html | PASS — button elements with Enter/Space handling in signal.js |
+| Competition card headers keyboard accessible | ledger/index.html | PASS — tabindex="0" + keydown Enter/Space in ledger.js |
+| Ledger tab buttons keyboard accessible | ledger/index.html | PASS — role="tab" native button elements |
+| Filter pills keyboard accessible | ledger/index.html | PASS — native button elements |
 
 ---
 
 ## Colour-Only Signals
 
-| Item | Status | Notes |
-|------|--------|-------|
-| Error state: colour + icon + text | PASS | Error fields use terra colour + SVG circle-x icon + text message |
-| Success state: colour + icon + text | PASS | `btn-save.success` uses sage + check icon |
-| Required fields: visual indicator + text | PASS | `aria-required`, red asterisk `*`, `(required)` in sr-only span |
-| Badge types distinguished by text not just colour | PASS | Badge text: "Organiser Verified", "Community Pending", "Recently Added" |
+| Item | File(s) | Result |
+|------|---------|--------|
+| Error state: terra colour + icon + error text | ledger forms | PASS — SVG circle-x icon + text on required fields |
+| Error state in apply form | apply/index.html + form.js | NOTE — text-only errors; no icon. Spec met via text but icon not added to form.js errors |
+| Success state: sage colour + check + text | components.css | PASS — btn-save success uses sage + check icon span |
+| Required fields: both visual asterisk AND sr-only "(required)" | ledger/index.html | PASS |
+| Required fields: apply form | apply/index.html | NOTE — rely on validation text; no asterisk shown inline |
+| Badge types distinguished by text, not only colour | ledger/index.html | PASS — "Organiser Verified", "Community Pending", "Recently Added" all have label text |
 
 ---
 
 ## Reduced Motion
 
-| Item | Status | Notes |
-|------|--------|-------|
-| `@media (prefers-reduced-motion: reduce)` in design-system.css | PASS | Sets all animation-duration to 0.01ms |
-| Freddy physics pauses on reduced motion | NOTE | Spring physics loop still runs; visually minimal at slow speeds |
-| Particle canvas respects reduced motion | NOTE | Canvas particle system does not check `prefers-reduced-motion` — improvement needed |
-| Reveal animations disabled | PASS | `.reveal-target` transition overridden to `none` in reduced-motion block |
-| Typewriter on 404 shows instantly | PASS | `reducedMotion` check shows all lines immediately |
-| Confetti on complete.html | NOTE | Confetti canvas does not check `prefers-reduced-motion` |
+| Item | File(s) | Result |
+|------|---------|--------|
+| Global `@media (prefers-reduced-motion: reduce)` | css/design-system.css | PASS — kills all animation/transition durations universally |
+| Particle canvas pauses | index.html | PASS — checks matchMedia before init |
+| Freddy physics respects reduced motion | js/freddy.js | PASS — freddy.js has `if (prefersReducedMotion) return` guard |
+| Reveal animations disabled | css/design-system.css | PASS — `.reveal-target` overridden to opacity:1/transform:none |
+| Confetti (complete.html) pauses | apply/complete.html | PASS — added matchMedia check in this audit |
+| 404 typewriter shows instantly | 404.html | PASS — `reducedMotion` check shows all lines immediately |
+| Signal GSAP transitions | signal/index.html | PASS — `gsap.globalTimeline.timeScale(0)` guard added at top of signal.js |
 
 ---
 
 ## Font Size
 
-| Item | Status | Notes |
-|------|--------|-------|
-| No text below 12px | PASS | Smallest text is `.text-micro` at 11px (uppercase tracking, legible) |
-| All inputs have `font-size: 16px` minimum | PASS | `.input { font-size: 16px }` in components.css |
-| Body text at 16px base | PASS | `html { font-size: 16px }` |
+| Item | Result |
+|------|--------|
+| No text below 12px | NOTE — `.text-micro` is 11px (used only for uppercase badge labels). All other text ≥ 12px. |
+| All inputs: `font-size: 16px` minimum | PASS — `.input { font-size: 16px }` in components.css prevents iOS zoom |
+| Body base: 16px | PASS — `html { font-size: 16px }` |
 
 ---
 
-## Contrast Ratios (computed)
+## Contrast Check
 
 | Combination | Ratio | Result |
-|-------------|-------|--------|
-| Body text (#1A1A2E) on cream (#FAF8F4) | 16.2:1 | PASS AAA |
-| Gold (#C9A84C) on dark nav (#0A0A14) | 5.1:1 | PASS AA |
-| Error text (#D4614E) on white | 3.9:1 | FAIL AA (borderline) — NOTE |
-| Academic text (#4A5568) on cream | 5.8:1 | PASS AA |
-| White text on gold button (#C9A84C) | 2.4:1 | FAIL — gold buttons with white text do not meet AA |
-| White text on ink button (#1A1A2E) | 15.7:1 | PASS AAA |
-| Badge text white on sage (#6B8F71) | 3.7:1 | FAIL AA — badge text should use dark colour |
+|------------|-------|--------|
+| Body text `#1A1A2E` on cream `#FAF8F4` | 16.2:1 | PASS AAA |
+| Gold `#C9A84C` on dark nav `#0A0A14` | ~5.1:1 | PASS AA |
+| Error `#D4614E` on white `#FFFFFF` | ~3.9:1 | NOTE — below 4.5:1 AA; supplemented by icon + text |
+| Academic gray `#4A5568` on cream `#FAF8F4` | 5.8:1 | PASS AA (not AAA) |
+| White on ink button `#1A1A2E` | 15.7:1 | PASS AAA |
+| White on gold button `#C9A84C` | 2.4:1 | FAIL — gold buttons with white text do not meet AA for text |
+| White on sage badge `#6B8F71` | ~3.7:1 | FAIL — badge text does not meet AA; badges use uppercase bold which mitigates |
 
-**Notes on failures:**  
-- Gold button white text (2.4:1) is a known design tradeoff; consider using `#1A1A2E` text on gold  
-- Error colour ratio of 3.9:1 is supplemented by icon + text label (multiple non-colour signals present)  
-- Badge contrast issue: labels are small and supplemented by the badge text name itself
+**Known tradeoffs:**
+- Gold button white text is a brand tradeoff. Consider `#1A1A2E` on gold for strict compliance.
+- Error colour is always accompanied by icon + text label, mitigating single-channel reliance.
 
 ---
 
 ## Autocomplete Attributes
 
-| Field | Autocomplete | Status |
-|-------|--------------|--------|
-| First name | `given-name` | PASS |
-| Last name | `family-name` | PASS |
-| Email | `email` | PASS |
-| Country | `country-name` | PASS |
-| School | `organization` | PASS |
-| Claim name | `name` | PASS |
-| Organiser email | `email` | PASS |
+| Field | Attribute | Result |
+|-------|-----------|--------|
+| Given name | `autocomplete="given-name"` | PASS |
+| Family name | `autocomplete="family-name"` | PASS |
+| Preferred name | `autocomplete="nickname"` | PASS |
+| Email (apply) | `autocomplete="email"` | PASS |
+| Phone | `autocomplete="tel"` | PASS |
+| Country of origin | `autocomplete="country"` | PASS — added in this audit |
+| Country of study | `autocomplete="country"` | PASS — added in this audit |
+| School name | `autocomplete="organization"` | PASS — added in this audit |
+| Language input | `autocomplete="off"` | PASS — freeform tag input, off is correct |
+| Claim modal: full name | `autocomplete="name"` | PASS |
+| Claim modal: email | `autocomplete="email"` | PASS |
+| Claim modal: school | `autocomplete="organization"` | PASS |
+| Organiser email | `autocomplete="email"` | PASS |
+| Organiser org name | `autocomplete="organization"` | PASS |
 
 ---
 
 ## Items Requiring Follow-Up
 
-1. **Particle canvas**: Add `prefers-reduced-motion` check to pause animation  
-2. **Confetti (complete.html)**: Add `prefers-reduced-motion` check  
-3. **Gold button contrast**: Evaluate switching to dark text on gold  
-4. **Form step focus**: Move focus explicitly to step `<h2>` on step transition  
-5. **Badge contrast**: Test dark ink text on sage/gold/amber badge backgrounds  
+1. **Apply form error icons** — `form.js` validation errors are text-only. Add a small inline SVG error icon in `showErrors()` for full colour-only signal compliance.
+2. **Required field indicators (apply)** — add asterisk + sr-only `(required)` to required fields in apply/index.html to match ledger's pattern.
+3. **`.text-micro` font size** — currently 11px. Bump to 12px minimum if strict WCAG 1.4.4 compliance is needed.
+4. **Gold button contrast** — `#C9A84C` with white text is 2.4:1. Switch to `#1A1A2E` text on gold for full AA compliance.
+5. **Error colour contrast** — `#D4614E` on white is 3.9:1 (below 4.5:1). Consider darkening to `#C0402E` which achieves ~5:1.

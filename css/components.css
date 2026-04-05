@@ -32,7 +32,7 @@
 }
 
 .btn:focus-visible {
-  outline:        3px solid var(--color-border-focus);
+  outline:        3px solid var(--color-gold);
   outline-offset: 2px;
 }
 
@@ -258,9 +258,9 @@ select.input {
 }
 
 .card-hover {
-  transition: transform 200ms var(--ease-spring),
-              border-color 200ms ease,
-              box-shadow   200ms ease;
+  transition: transform 200ms ease-out,
+              border-color 200ms ease-out,
+              box-shadow   200ms ease-out;
   cursor:     pointer;
 }
 

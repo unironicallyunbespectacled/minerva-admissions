@@ -176,6 +176,18 @@
     return function () { goToStep(step - 1, 'back'); };
   }
 
+  var STEP_TOASTS = { 2: 'Background done. On to academics.', 4: 'Academics done. Essays are next.', 6: 'Essays done. One final review.' };
+
+  function showStepToast(message) {
+    var text = document.getElementById('save-text');
+    var dot  = document.getElementById('save-dot');
+    if (!text) return;
+    var prev = text.textContent;
+    if (dot) { dot.classList.remove('saving'); dot.classList.add('visible'); }
+    text.textContent = message;
+    setTimeout(function () { text.textContent = prev; }, 3000);
+  }
+
   function goToStep(next, dir) {
     if (next < 1 || next > TOTAL_STEPS) return;
     var clip   = document.getElementById('steps-viewport');
@@ -213,6 +225,13 @@
       updateProgress();
       window.scrollTo({ top: 0, behavior: 'smooth' });
       debouncedSave();
+      if (dir === 'forward' && STEP_TOASTS[next]) showStepToast(STEP_TOASTS[next]);
+      // Move focus to step heading for screen readers
+      var heading = toEl.querySelector('.step-title');
+      if (heading) {
+        heading.setAttribute('tabindex', '-1');
+        heading.focus();
+      }
     }, 265);
   }
 
@@ -234,38 +253,38 @@
 
     if (step === 1) {
       reqField('given-name',     'fg-given-name',
-        msg('Please enter your given name', 'We need your given name to continue'), errs);
+        msg('We need this to continue', 'We need your given name to continue'), errs);
       reqField('family-name',    'fg-family-name',
-        msg('Please enter your family name', 'We need your family name to continue'), errs);
+        msg('We need this to continue', 'We need your family name to continue'), errs);
       if (!document.querySelector('input[name="pronouns"]:checked')) {
         errs.push({ groupId: 'fg-pronouns',
-          msg: msg('Please select your pronouns', 'Just let us know what to call you') });
+          msg: msg('We need this to continue', 'Just let us know what to call you') });
       }
       reqSelect('country-origin', 'fg-country-origin',
-        msg('Please select your country of origin', 'We need your country of origin to continue'), errs);
+        msg('We need this to continue', 'We need your country of origin to continue'), errs);
       reqSelect('country-study',  'fg-country-study',
-        msg('Please select where you currently study', 'We need to know where you study to continue'), errs);
+        msg('We need this to continue', 'We need to know where you study to continue'), errs);
     }
 
     if (step === 2) {
       reqField('email', 'fg-email',
-        msg('Please enter your email address', 'We need your email so we can reach you'), errs);
+        msg('We need this to continue', 'We need your email so we can reach you'), errs);
       var emailVal = val('email');
       if (emailVal && !isEmail(emailVal)) {
         errs.push({ groupId: 'fg-email',
-          msg: 'Please enter a valid email address (e.g. you@example.com)' });
+          msg: 'That does not look like an email address — try again (e.g. your@email.com)' });
       }
       reqField('school-name', 'fg-school-name',
-        msg('Please tell us your current school', 'We need your school name to continue'), errs);
+        msg('We need this to continue', 'We need your school name to continue'), errs);
       reqSelect('grade', 'fg-grade',
-        msg('Please select your current grade or year', 'We need to know your year level'), errs);
+        msg('We need this to continue', 'We need to know your year level'), errs);
     }
 
     if (step === 3) {
       reqSelect('grading-system', 'fg-grading-system',
-        msg('Please select your grading system', 'We need to know your grading system'), errs);
+        msg('We need this to continue', 'We need to know your grading system'), errs);
       reqField('score', 'fg-score',
-        msg('Please enter your current score or GPA', 'We need your current score to continue'), errs);
+        msg('We need this to continue', 'We need your current score to continue'), errs);
     }
 
     if (step === 4) {
@@ -275,11 +294,11 @@
         var title = firstBlock.querySelector('.acc-title');
         if (cat && !cat.value) {
           errs.push({ el: cat,
-            msg: 'Please select a category for your first accomplishment' });
+            msg: 'We need this to continue — select a category' });
         }
         if (title && !title.value.trim()) {
           errs.push({ el: title,
-            msg: 'Please give your first accomplishment a title' });
+            msg: 'We need this to continue — give this accomplishment a title' });
         }
       }
     }
@@ -289,12 +308,12 @@
       var e2 = document.getElementById('essay2');
       if (e1 && wordCount(e1.value) < 10) {
         errs.push({ groupId: 'fg-essay1',
-          msg: msg('Please write at least a few sentences for Essay 1',
+          msg: msg('We need at least a few sentences for Essay 1',
                    'Take your time — even a few sentences is a start for Essay 1') });
       }
       if (e2 && wordCount(e2.value) < 10) {
         errs.push({ groupId: 'fg-essay2',
-          msg: msg('Please write at least a few sentences for Essay 2',
+          msg: msg('We need at least a few sentences for Essay 2',
                    'You\'ve got this — even a few sentences works for Essay 2') });
       }
     }
@@ -417,10 +436,10 @@
     dot.classList.remove('visible', 'saving');
     if (state === 'saving') {
       dot.classList.add('visible', 'saving');
-      text.textContent = 'Saving…';
+      text.textContent = 'Getting your application ready…';
     } else if (state === 'saved') {
       dot.classList.add('visible');
-      text.textContent = 'Draft saved just now';
+      text.textContent = 'Draft saved — you can come back any time';
     } else {
       text.textContent = '';
     }
@@ -432,7 +451,7 @@
       var mins = Math.floor((Date.now() - lastSaveTime) / 60000);
       var text = document.getElementById('save-text');
       if (!text) return;
-      if (mins < 1)      text.textContent = 'Draft saved just now';
+      if (mins < 1)      text.textContent = 'Draft saved — you can come back any time';
       else if (mins === 1) text.textContent = 'Draft saved 1 minute ago';
       else                 text.textContent = 'Draft saved ' + mins + ' minutes ago';
     }, 30000);
@@ -528,7 +547,7 @@
     setSaveUI('saved');
     setTimeout(function () {
       var text = document.getElementById('save-text');
-      if (text) text.textContent = 'Draft loaded';
+      if (text) text.textContent = 'Your application is waiting for you. Begin whenever you are ready.';
     }, 100);
   }
 
@@ -636,8 +655,10 @@
   }
 
   function refreshAddAccBtn() {
-    var btn = document.getElementById('add-acc-btn');
-    if (btn) btn.style.display = accCount >= MAX_ACC ? 'none' : 'block';
+    var btn   = document.getElementById('add-acc-btn');
+    var empty = document.getElementById('acc-empty-state');
+    if (btn)   btn.style.display   = accCount >= MAX_ACC ? 'none' : 'block';
+    if (empty) empty.style.display = accCount === 0 ? 'block' : 'none';
   }
 
 
@@ -793,7 +814,7 @@
       if (!isEmail(el.value.trim())) {
         group.classList.add('has-error');
         var d = group.querySelector('.form-error');
-        if (d) { d.textContent = 'Please enter a valid email (e.g. you@example.com)'; d.style.display = 'flex'; }
+        if (d) { d.textContent = 'That does not look like an email address — try again (e.g. your@email.com)'; d.style.display = 'flex'; }
         shakeEl(el);
       } else {
         clearGroup(group);
@@ -944,10 +965,10 @@
     var errDiv = document.getElementById('submit-error');
 
     if (!document.getElementById('confirm-own-work').checked) {
-      errs.push('Please confirm this is your own work.');
+      errs.push('We need you to confirm this is your own work before we can submit.');
     }
     if (!document.getElementById('confirm-terms').checked) {
-      errs.push('Please agree to the terms to continue.');
+      errs.push('We need you to agree to the terms to continue.');
     }
 
     if (errs.length) {
@@ -957,6 +978,8 @@
     }
 
     if (errDiv) { errDiv.textContent = ''; errDiv.style.display = 'none'; }
+
+    showStepToast('Everything is in. This is your moment.');
 
     // Show loading state
     var btn     = document.getElementById('submit-btn');

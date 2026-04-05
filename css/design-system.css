@@ -382,6 +382,44 @@ ol {
 
 
 /* ─────────────────────────────────────────────────────────────
+   12a. GLOBAL FOCUS RING
+   Applies to any interactive element not already covered by
+   component-specific :focus-visible rules.
+───────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline:        3px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+/* Remove double outline for elements with their own focus styles */
+.btn:focus-visible,
+.input:focus-visible,
+.ledger-tab:focus-visible,
+.filter-pill:focus-visible,
+.modal-close:focus-visible,
+.comp-card-header:focus-visible {
+  outline: 3px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   12b. SCREEN READER ONLY UTILITY
+───────────────────────────────────────────────────────────── */
+.sr-only {
+  position:   absolute;
+  width:      1px;
+  height:     1px;
+  padding:    0;
+  margin:     -1px;
+  overflow:   hidden;
+  clip:       rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border:     0;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
    13. REVEAL ANIMATIONS (IntersectionObserver targets)
 ───────────────────────────────────────────────────────────── */
 .reveal-target {

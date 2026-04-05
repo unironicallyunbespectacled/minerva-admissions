@@ -58,6 +58,7 @@
   // Laser dot element
   const laser = document.createElement('div');
   laser.id = 'laser-dot';
+  laser.setAttribute('aria-hidden', 'true');
 
   if (IS_BIRTHDAY) {
     // Swap dot for a cupcake on birthdays
@@ -213,6 +214,7 @@
   ───────────────────────────────────────────────────────────── */
   const freddy = document.createElement('div');
   freddy.id = 'freddy';
+  freddy.setAttribute('aria-hidden', 'true');
   Object.assign(freddy.style, {
     position:      'fixed',
     pointerEvents: 'none',

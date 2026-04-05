@@ -19,6 +19,10 @@
 (function () {
   'use strict';
 
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches && window.gsap) {
+    gsap.globalTimeline.timeScale(0);
+  }
+
   /* ─────────────────────────────────────────────────────────────
      1. CONSTANTS
   ───────────────────────────────────────────────────────────── */
@@ -288,10 +292,11 @@
 
     DISCOVERY_QUESTIONS.forEach(function (q, i) {
       var btn = el('button', {
-        className:      'q-card',
+        className:      'q-card reveal-target',
         type:           'button',
         'data-q-index': i,
       });
+      btn.style.transitionDelay = (i * 80) + 'ms';
       btn.textContent = q;
 
       if (state.question.selectedQ === i)   btn.classList.add('q-selected');

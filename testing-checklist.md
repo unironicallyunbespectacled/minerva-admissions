@@ -1,6 +1,7 @@
 # Testing Checklist — Minerva Admissions
 
 Manual testing checklist. Mark each item pass/fail after testing in browser.
+Last updated: 2026-04-05
 
 ---
 
@@ -22,23 +23,52 @@ Manual testing checklist. Mark each item pass/fail after testing in browser.
 
 ---
 
+## Visual Polish
+
+| # | Test | Expected | Status |
+|---|------|----------|--------|
+| 12 | Particle system plays on index.html hero | 60 particles move slowly, connected by lines when within 120px | [ ] |
+| 13 | Mouse movement repels particles | Particles drift away from cursor within 100px | [ ] |
+| 14 | Particles pause when tab is hidden | Switch tab; particles freeze; return tab; resume | [ ] |
+| 15 | Particle system pauses on prefers-reduced-motion | Enable OS reduced motion; particles do not appear | [ ] |
+| 16 | Feature cards reveal on scroll | Cards fade+slide up with 80ms stagger on entering viewport | [ ] |
+| 17 | Bento grid layout on desktop | Left card (Signal Not Noise) is wider (~60%); two right cards stack | [ ] |
+| 18 | Bento grid collapses to 2-col at tablet | 768px: two columns | [ ] |
+| 19 | Bento grid collapses to single column at mobile | 480px: all cards stacked | [ ] |
+| 20 | Card hover: translateY(-2px) + border darkening | Smooth 200ms ease-out on all feature cards | [ ] |
+| 21 | Focus ring is 3px gold on all buttons | Tab to any button: visible gold outline | [ ] |
+| 22 | Dark mode applies correctly | Enable system dark mode: backgrounds, text, borders all update | [ ] |
+| 23 | Hamburger nav appears at ≤768px | Nav links hide; hamburger icon appears | [ ] |
+| 24 | Hamburger menu opens/closes | Click hamburger; mobile nav slides in; Escape or outside click closes | [ ] |
+| 25 | Hamburger menu works on all pages | index, apply, signal, ledger all have working hamburger | [ ] |
+| 26 | Print layout (index.html) | Cmd/Ctrl+P: nav, Freddy, particles hidden; content readable | [ ] |
+| 27 | Print layout (apply) | Form content visible; Freddy, nav hidden | [ ] |
+
+---
+
 ## Application Form (apply/index.html)
 
 | # | Test | Expected | Status |
 |---|------|----------|--------|
-| 12 | Form loads at Step 1 | Progress at 0%; Step 1 fields visible | [ ] |
-| 13 | Form auto-saves on field change | Auto-save dot appears; localStorage updated | [ ] |
-| 14 | Form restores draft on return | Revisiting page shows previously entered data | [ ] |
-| 15 | Empty required field submit shows error | Error message appears with icon + text | [ ] |
-| 16 | Step transition animates | Slide left/right between steps | [ ] |
-| 17 | Essay word counter works | Counter updates as user types | [ ] |
-| 18 | Essay at 50% word count turns counter gold | Counter text colour changes to gold temporarily | [ ] |
-| 19 | Essay at word limit brightens submit button | Next button gets btn-gold class | [ ] |
-| 20 | Language tags add/remove | Typing language + Enter adds tag; × removes it | [ ] |
-| 21 | Accomplishment blocks add up to 6 | Add button works; disabled after 6 | [ ] |
-| 22 | Review step shows all entered data | Step 6 renders summary of all previous answers | [ ] |
-| 23 | Edit links in review step jump back | "Edit" link beside each section goes to correct step | [ ] |
-| 24 | Submit redirects to complete.html | After 1.5s spinner, redirects | [ ] |
+| 28 | Form loads at Step 1 | Progress at 0%; Step 1 fields visible | [ ] |
+| 29 | Form auto-saves on field change | "Draft saved — you can come back any time" appears | [ ] |
+| 30 | Form restores draft on return | Revisiting shows data + "Your application is waiting for you" | [ ] |
+| 31 | Empty required field submit shows error | Error message appears with icon + text | [ ] |
+| 32 | Step transition animates | Slide left/right between steps | [ ] |
+| 33 | Focus moves to step heading on transition | Screen reader announces step title on step change | [ ] |
+| 34 | "Continue →" buttons advance the form | Renamed from "Next →" | [ ] |
+| 35 | "← Previous step" buttons go back | Renamed from "← Back" | [ ] |
+| 36 | Essay 1 help text visible | "This is not asking for a policy proposal..." appears above textarea | [ ] |
+| 37 | Essay 2 help text visible | "This could be physics, cooking..." appears above textarea | [ ] |
+| 38 | GPA help text is contextual | "Use your school's scale. We will ask for context..." | [ ] |
+| 39 | Essay word counter works | Counter updates as user types | [ ] |
+| 40 | Essay at 50% word count turns counter gold | Counter text colour changes to gold temporarily | [ ] |
+| 41 | Language tags add/remove | Typing language + Enter adds tag; × removes it | [ ] |
+| 42 | Accomplishment blocks add up to 6 | Add button works; disabled after 6 | [ ] |
+| 43 | Review step shows all entered data | Step 6 renders summary of all previous answers | [ ] |
+| 44 | Submit redirects to complete.html | After 1.5s spinner, redirects | [ ] |
+| 45 | Trust signals visible below form | Three trust items with icons visible on form | [ ] |
+| 46 | Submit error uses assertive aria-live | Submit without checking boxes; error announced | [ ] |
 
 ---
 
@@ -46,9 +76,10 @@ Manual testing checklist. Mark each item pass/fail after testing in browser.
 
 | # | Test | Expected | Status |
 |---|------|----------|--------|
-| 25 | Confetti falls continuously | Gold/navy/white confetti particles animate | [ ] |
-| 26 | Freddy with party hat bounces | Freddy spins in, then bobs; tail wags | [ ] |
-| 27 | Back to Minerva link works | Link navigates to index.html | [ ] |
+| 47 | Confetti falls continuously | Gold/navy/white confetti particles animate | [ ] |
+| 48 | Freddy with party hat bounces | Freddy spins in, then bobs; tail wags | [ ] |
+| 49 | Confetti pauses on reduced motion | Enable reduced motion; confetti canvas hidden | [ ] |
+| 50 | Back to Minerva link works | Link navigates to index.html | [ ] |
 
 ---
 
@@ -56,17 +87,15 @@ Manual testing checklist. Mark each item pass/fail after testing in browser.
 
 | # | Test | Expected | Status |
 |---|------|----------|--------|
-| 28 | Signal Not Noise loads Stage 1 | 5 question cards visible | [ ] |
-| 29 | Selecting a question shows answer area | Answer textarea slides in | [ ] |
-| 30 | GSAP transition plays between screens | Slide left on continue | [ ] |
-| 31 | Depth follow-up questions match selection | Q2 follow-ups differ from Q1 follow-ups | [ ] |
-| 32 | Context form saves to state | Returning to screen 5 shows previously entered data | [ ] |
-| 33 | Stage 4 runs keyword analysis | 4–6 quality items appear with staggered animation | [ ] |
-| 34 | Revise button goes back to screen 1 | Screen 1 loads with back-slide animation | [ ] |
-| 35 | Authenticity radio selection works | Pill highlights on selection | [ ] |
-| 36 | Export paragraph generates from answers | Stage 6 shows paragraph built from user text | [ ] |
-| 37 | Copy to clipboard works | Button text changes to "Copied ✓" | [ ] |
-| 38 | Signal state saves to localStorage | Refreshing page restores current screen | [ ] |
+| 51 | Signal Not Noise loads Stage 1 | 5 question cards visible | [ ] |
+| 52 | Question cards reveal with stagger | Cards fade in with 80ms stagger | [ ] |
+| 53 | Selecting a question shows answer area | Answer textarea slides in | [ ] |
+| 54 | Back button says "← Previous step" | Renamed from "← Back" | [ ] |
+| 55 | GSAP transition plays between screens | Slide left on continue | [ ] |
+| 56 | Depth follow-up questions match selection | Q2 follow-ups differ from Q1 follow-ups | [ ] |
+| 57 | Stage 4 runs keyword analysis | 4–6 quality items appear with staggered animation | [ ] |
+| 58 | Export paragraph generates from answers | Stage 6 shows paragraph built from user text | [ ] |
+| 59 | Copy to clipboard works | Button text changes to "Copied ✓" | [ ] |
 
 ---
 
@@ -74,22 +103,15 @@ Manual testing checklist. Mark each item pass/fail after testing in browser.
 
 | # | Test | Expected | Status |
 |---|------|----------|--------|
-| 39 | Competitions load from JSON | Cards appear for all 15 seed competitions | [ ] |
-| 40 | Ledger search filters in real-time | Typing filters cards as user types | [ ] |
-| 41 | Region filter pills work | "Nigeria" pill shows only Nigerian competitions | [ ] |
-| 42 | Not-found state appears on no results | "We do not have X yet" message with add button | [ ] |
-| 43 | Not-found add button pre-fills form | Add Competition form opens with search term filled | [ ] |
-| 44 | Competition card expands on click | Results table and action buttons appear | [ ] |
-| 45 | Only one card is open at a time | Opening a second card closes the first | [ ] |
-| 46 | Claim modal opens from card | Modal overlays page with correct competition name | [ ] |
-| 47 | Claim modal closes on Escape | Modal dismisses, focus returns to claim button | [ ] |
-| 48 | Claim form submits and shows success | Form hides, success message appears | [ ] |
-| 49 | Claimed result appears in results table | After claim, "Pending Review" row added to table | [ ] |
-| 50 | Vouch button increments count | Vouch count increases; "Vouched ✓" shown | [ ] |
-| 51 | 3 vouches upgrades badge | Status changes from Community Pending to Community Verified | [ ] |
-| 52 | Add Competition form submits | New card appears in results with Recently Added badge | [ ] |
-| 53 | For Organisers tab switches panel | Organiser panel becomes visible | [ ] |
-| 54 | Organiser form submits | Success message with email address shown | [ ] |
+| 60 | Competitions load from JSON | Cards appear for all 15 seed competitions | [ ] |
+| 61 | Cards reveal with stagger via IntersectionObserver | Cards fade in sequentially on load | [ ] |
+| 62 | Ledger search filters in real-time | Typing filters cards as user types | [ ] |
+| 63 | Region filter pills work | "Nigeria" pill shows only Nigerian competitions | [ ] |
+| 64 | Not-found text: "We do not have X yet. Be the first to add it." | Updated copy | [ ] |
+| 65 | Competition card expands on click | Results table and action buttons appear | [ ] |
+| 66 | Claim modal opens from card | Modal overlays page with correct competition name | [ ] |
+| 67 | Claim modal closes on Escape | Modal dismisses, focus returns to claim button | [ ] |
+| 68 | Claim form submits and shows success | Form hides, success message appears | [ ] |
 
 ---
 
@@ -97,38 +119,35 @@ Manual testing checklist. Mark each item pass/fail after testing in browser.
 
 | # | Test | Expected | Status |
 |---|------|----------|--------|
-| 55 | Konami code triggers confetti | ↑↑↓↓←→←→BA → 50 confetti divs burst + toast | [ ] |
-| 56 | Konami toast dismisses after 4s | Auto-dismisses; "Worth a try" button dismisses immediately | [ ] |
-| 57 | 404 page displays Socratic dialogue | `/404.html` shows typewriter dialogue | [ ] |
-| 58 | Console shows ASCII art + message | Open DevTools → Ensō + gold text in console | [ ] |
-| 59 | HTML source comment visible | View source of index.html → discovery comment in `<head>` | [ ] |
-| 60 | 7-click wordmark opens secret modal | Click MINERVA 7× within 5s → typewriter modal | [ ] |
-| 61 | Secret modal closes on Escape | Escape key closes modal, focus returns to wordmark | [ ] |
-| 62 | Birthday mode on April 1 | Freddy has party hat; cupcake laser; birthday toast | [ ] |
-| 63 | Samsung browser shows dragon briefly | On Samsung Internet → dragon SVG flashes then Freddy returns | [ ] |
-| 64 | Night owl mode between 1am–4am | Toast appears: "Night owl mode active..." | [ ] |
+| 69 | Konami code triggers confetti | ↑↑↓↓←→←→BA → confetti burst + toast | [ ] |
+| 70 | 404 page displays Socratic dialogue | `/404.html` shows typewriter dialogue | [ ] |
+| 71 | Console shows ASCII art + message | Open DevTools → Ensō + gold text in console | [ ] |
+| 72 | 7-click wordmark opens secret modal | Click MINERVA 7× within 5s → typewriter modal | [ ] |
+| 73 | Secret modal closes on Escape + returns focus | Escape closes; focus back to MINERVA wordmark | [ ] |
 
 ---
 
-## Technical
+## Technical / Accessibility
 
 | # | Test | Expected | Status |
 |---|------|----------|--------|
-| 65 | No JS errors in console on any page | DevTools console shows no red errors | [ ] |
-| 66 | Site works at 375px viewport width | No horizontal scroll; all content accessible | [ ] |
-| 67 | Tab navigation works through form | Tab key moves through all form inputs in order | [ ] |
-| 68 | All internal nav links work | Apply, Signal, Ledger nav links navigate correctly | [ ] |
-| 69 | Dark mode (prefers-color-scheme: dark) | Enabling system dark mode updates surface/text colours | [ ] |
-| 70 | Reduced motion (prefers-reduced-motion) | Enabling in accessibility settings stops animations | [ ] |
-| 71 | Google Fonts load (with network) | DM Sans and Playfair Display render correctly | [ ] |
-| 72 | Google Fonts fallback (no network) | system-ui fallback renders legibly | [ ] |
-| 73 | All asset paths work from subdirectories | apply/, signal/, ledger/ pages load their CSS/JS | [ ] |
+| 74 | No JS errors in console on any page | DevTools console shows no red errors | [ ] |
+| 75 | Site works at 375px viewport width | No horizontal scroll; all content accessible | [ ] |
+| 76 | Tab navigation works through form | Tab key moves through all form inputs in order | [ ] |
+| 77 | All internal nav links work | Apply, Signal, Ledger nav links navigate correctly | [ ] |
+| 78 | Dark mode (prefers-color-scheme: dark) | Enabling system dark mode updates surface/text colours | [ ] |
+| 79 | Reduced motion stops all animations | Enable in OS accessibility settings; no motion on any page | [ ] |
+| 80 | Google Fonts load (with network) | DM Sans and Playfair Display render correctly | [ ] |
+| 81 | Google Fonts fallback (no network) | system-ui fallback renders legibly | [ ] |
+| 82 | All asset paths work from subdirectories | apply/, signal/, ledger/ pages load CSS/JS (relative paths) | [ ] |
+| 83 | All inputs have font-size ≥ 16px (no zoom on iOS) | No auto-zoom on iOS when focusing inputs | [ ] |
+| 84 | All tap targets ≥ 44×44px | Buttons, links, pills all large enough on mobile | [ ] |
 
 ---
 
 ## Scoring
 
-Pass count: __ / 73  
-Date tested: ___________  
-Tester: ___________  
+Pass count: __ / 84
+Date tested: ___________
+Tester: ___________
 Browser/OS: ___________

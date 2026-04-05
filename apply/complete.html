@@ -237,6 +237,12 @@
         });
       }
 
+      /* Respect prefers-reduced-motion */
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        canvas.style.display = 'none';
+        return;
+      }
+
       var tick = 0;
       function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);

@@ -194,14 +194,16 @@
 
     filteredResults.forEach(function (comp, i) {
       var card = buildCard(comp);
-      card.style.animationDelay = (i * 0.04) + 's';
+      card.style.transitionDelay = (i * 80) + 'ms';
       card.classList.add('reveal-target');
       listEl.appendChild(card);
 
-      /* Kick IntersectionObserver for the card */
-      setTimeout(function () {
-        card.classList.add('revealed');
-      }, 50 + i * 40);
+      /* Use shared IntersectionObserver if available, else fallback */
+      if (window.__ledgerRevealObserver) {
+        window.__ledgerRevealObserver.observe(card);
+      } else {
+        setTimeout(function () { card.classList.add('revealed'); }, 50 + i * 80);
+      }
     });
   }
 
@@ -514,7 +516,7 @@
     var email     = document.getElementById('cl-email').value.trim();
 
     if (!name || !placement || !school || !email) {
-      showToast('Please fill in all required fields.');
+      showToast('We need all required fields to continue.');
       return;
     }
     if (!isValidEmail(email)) {
@@ -559,11 +561,11 @@
     if (!name)  { showFieldErr('ac-name',   'ac-name-err',   true); valid = false; }
     else         { showFieldErr('ac-name',   'ac-name-err',   false); }
     if (!email || !isValidEmail(email)) {
-      showToast('Please enter a valid email address.');
+      showToast('That does not look like a valid email address — try again.');
       valid = false;
     }
     if (!region || !year || !desc) {
-      showToast('Please fill in all required fields.');
+      showToast('We need a region, year, and description to continue.');
       valid = false;
     }
     if (!valid) return;
@@ -638,7 +640,7 @@
     var compName = document.getElementById('org-compname').value.trim();
 
     if (!orgName || !email || !compName || !isValidEmail(email)) {
-      showToast('Please fill in all required fields with a valid email.');
+      showToast('We need a valid email and all required fields to continue.');
       return;
     }
 
