@@ -1,1 +1,97 @@
-/* glassmorphism.css — frosted glass surface utilities */
+/* ═══════════════════════════════════════════════════════════════
+   GLASSMORPHISM — frosted glass surface utilities
+   css/glassmorphism.css
+   Applied globally; all pages link this file.
+═══════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────
+   STANDARD GLASS — for .card elements on dark/gradient bg
+───────────────────────────────────────────────────────────── */
+.glass {
+  background:              rgba(255, 255, 255, 0.08);
+  backdrop-filter:         blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border:                  1px solid rgba(255, 255, 255, 0.12);
+  border-radius:           12px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CHROMATIC GLASS — mood selector, Freddy intro, cookie banner,
+   affirmation cards, any accent-bordered panel
+───────────────────────────────────────────────────────────── */
+.chromatic-glass {
+  background:              rgba(255, 255, 255, 0.06);
+  backdrop-filter:         blur(12px) hue-rotate(2deg);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius:           12px;
+  box-shadow:
+    0 0 0 1px rgba(201, 168, 76, 0.25),
+    4px 4px 24px rgba(201, 168, 76, 0.08),
+    -4px -4px 24px rgba(45, 53, 97, 0.08);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   CARD GLASS — for .card / .feature-card / .comp-card on dark bg
+───────────────────────────────────────────────────────────── */
+.card-glass {
+  background:              rgba(255, 255, 255, 0.07);
+  backdrop-filter:         blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  border:                  1px solid rgba(255, 255, 255, 0.10);
+  border-radius:           16px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   NAV GLASS — nav header on all pages
+───────────────────────────────────────────────────────────── */
+.nav-glass,
+#nav {
+  background:              rgba(10, 10, 20, 0.85) !important;
+  backdrop-filter:         blur(16px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-bottom:           1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   @supports FALLBACK — old Android / no backdrop-filter support
+───────────────────────────────────────────────────────────── */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass           { background: rgba(15, 15, 30, 0.92) !important; }
+  .chromatic-glass { background: rgba(15, 15, 30, 0.92) !important; }
+  .card-glass      { background: rgba(20, 20, 40, 0.95) !important; }
+  .nav-glass,
+  #nav             { background: rgba(5, 5, 15, 0.97)   !important; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   AFFIRMATION CARD (form.js injects these)
+───────────────────────────────────────────────────────────── */
+.affirmation-card {
+  background:              rgba(201, 168, 76, 0.06) !important;
+  backdrop-filter:         blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-left:             3px solid var(--color-gold, #C9A84C) !important;
+  border-radius:           0 8px 8px 0;
+  padding:                 14px 18px;
+  margin-bottom:           20px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MOOD GATE specific glass
+───────────────────────────────────────────────────────────── */
+#mood-gate {
+  background: #000000;
+}
+
+#mood-gate .mood-gate-btn {
+  background:              rgba(255, 255, 255, 0.06);
+  backdrop-filter:         blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border:                  1px solid rgba(255, 255, 255, 0.10);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  #mood-gate .mood-gate-btn {
+    background: rgba(40, 40, 60, 0.95) !important;
+  }
+}
