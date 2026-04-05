@@ -162,13 +162,85 @@
     if (sub) sub.addEventListener('click', handleSubmit);
   }
 
+  /* ─────────────────────────────────────────────────────────────
+     AFFIRMATION ENGINE
+  ───────────────────────────────────────────────────────────── */
+  var AFFIRMATIONS = [
+    'The most interesting thing about you is not on your transcript.',
+    'You do not need to sound like everyone else. Sound like yourself.',
+    'Your story is valid. Even if no one has ever asked for it before.',
+    'The things you\'ve had to figure out yourself matter more than you think.',
+    'If it was hard and you did it anyway, that tells us everything.',
+    'Minerva has students from 80+ countries. Your context is not a disadvantage.',
+    'You applied. That means something.',
+    'The best essays are not clever. They are honest.',
+    'You know things that cannot be learned in a classroom. Tell us.',
+    'Whatever brought you this far is already remarkable.',
+  ];
+  var _affirmIdx = 0;
+
+  function showAffirmation(targetStepEl) {
+    if (!targetStepEl) return;
+    var msg = AFFIRMATIONS[_affirmIdx % AFFIRMATIONS.length];
+    _affirmIdx++;
+
+    var card = document.createElement('div');
+    card.className = 'affirmation-card chromatic-glass';
+    card.setAttribute('aria-live', 'polite');
+    card.innerHTML = '<p style="margin:0;font-family:var(--font-display,\'Playfair Display\',Georgia,serif);' +
+      'font-style:italic;font-size:17px;color:var(--dark-text,#E8E6E0);line-height:1.6;">' +
+      msg + '</p>';
+    card.style.cssText =
+      'border-left:3px solid var(--color-gold,#C9A84C);' +
+      'padding:14px 18px;margin-bottom:20px;' +
+      'opacity:0;transform:translateY(8px);' +
+      'transition:opacity 200ms ease,transform 200ms ease;';
+
+    targetStepEl.insertBefore(card, targetStepEl.firstChild);
+
+    requestAnimationFrame(function() {
+      card.style.opacity   = '1';
+      card.style.transform = 'translateY(0)';
+    });
+
+    // Freddy happy bounce
+    var freddy = document.getElementById('freddy');
+    if (freddy) {
+      freddy.style.transition = 'transform 150ms ease';
+      freddy.style.transform  = 'translate(-50%,-50%) scale(1.12)';
+      setTimeout(function() {
+        freddy.style.transform = 'translate(-50%,-50%) scale(1)';
+      }, 300);
+    }
+
+    // Fade out after 4 seconds
+    setTimeout(function() {
+      card.style.opacity   = '0';
+      card.style.transform = 'translateY(-6px)';
+      setTimeout(function() {
+        if (card.parentNode) card.parentNode.removeChild(card);
+      }, 300);
+    }, 4000);
+  }
+
   function makeNextCb(step) {
     return function () {
       var errs = validateStep(step);
       if (errs.length) { showErrors(errs); scrollToFirstError(); return; }
       clearStepErrors(step);
       if (step === 5) buildReviewStep();
-      goToStep(step + 1, 'forward');
+
+      // Haptic feedback on step advance
+      if (window.__haptic) window.__haptic('medium');
+
+      var nextStep = step + 1;
+      goToStep(nextStep, 'forward');
+
+      // Show affirmation in the next step after transition completes
+      setTimeout(function() {
+        var nextEl = document.getElementById('step-' + nextStep);
+        showAffirmation(nextEl);
+      }, 280);
     };
   }
 
@@ -733,11 +805,37 @@
   /* ─────────────────────────────────────────────────────────────
      12. ESSAY WORD COUNTERS
   ───────────────────────────────────────────────────────────── */
+  var BEN_OKRI_QUOTE =
+    '"The most authentic thing about us is our capacity to create, to overcome, ' +
+    'to endure, to transform, to love, and to be greater than our suffering." — Ben Okri';
+
+  function setupEssayQuotes() {
+    ['essay1','essay2'].forEach(function (id) {
+      var textarea = document.getElementById(id);
+      var quoteEl  = document.getElementById(id + '-quote');
+      if (!textarea || !quoteEl) return;
+
+      quoteEl.textContent = BEN_OKRI_QUOTE;
+      quoteEl.style.cssText =
+        'font-family:var(--font-display);font-style:italic;font-size:13px;' +
+        'color:var(--color-academic);line-height:1.6;margin-top:8px;' +
+        'transition:opacity 300ms ease;opacity:1;';
+
+      textarea.addEventListener('input', function() {
+        var wc = wordCount(textarea.value);
+        quoteEl.style.opacity = wc >= 20 ? '0' : '1';
+        if (wc >= 20) quoteEl.style.pointerEvents = 'none';
+        else quoteEl.style.pointerEvents = '';
+      });
+    });
+  }
+
   function setupEssayCounters() {
     ['essay1','essay2'].forEach(function (id) {
       var el = document.getElementById(id);
       if (el) el.addEventListener('input', function () { updateEssayCounter(el); });
     });
+    setupEssayQuotes();
   }
 
   function updateEssayCounter(textarea) {
@@ -974,10 +1072,12 @@
     if (errs.length) {
       if (errDiv) { errDiv.textContent = errs.join(' '); errDiv.style.display = 'flex'; }
       shakeEl(document.getElementById('submit-btn'));
+      if (window.__haptic) window.__haptic('error');
       return;
     }
 
     if (errDiv) { errDiv.textContent = ''; errDiv.style.display = 'none'; }
+    if (window.__haptic) window.__haptic('success');
 
     showStepToast('Everything is in. This is your moment.');
 
