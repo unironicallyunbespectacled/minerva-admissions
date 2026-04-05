@@ -1,16 +1,18 @@
 /* ═══════════════════════════════════════════════════════════════
-   MOOD SYSTEM — js/mood.js
+   MOOD SYSTEM — js/mood.js  v2.0
    Loads before freddy.js so window.__MINERVA is set before
    the spring-physics loop begins.
 
    Sections:
    1.  Mood definitions
-   2.  Flash-safe early apply  (reads localStorage synchronously)
-   3.  Global Freddy bridge    (window.__MINERVA)
+   2.  Flash-safe early apply
+   3.  Global Freddy bridge
    4.  applyMood()
-   5.  Mood selector panel     (injected at DOMContentLoaded)
-   6.  Cookie consent          (injected at DOMContentLoaded)
-   7.  Freddy intro text       (mood-aware, set at DOMContentLoaded)
+   5.  Mood gate (first visit — blocks site-content until selection)
+   6.  Mood selector panel (nav toggle)
+   7.  Cookie consent
+   8.  Freddy intro text
+   9.  Chaotic random bat
 ═══════════════════════════════════════════════════════════════ */
 
 (function () {
@@ -22,23 +24,23 @@
   var MOODS = {
     'locked-in': {
       label:     'LOCKED IN',
-      desc:      'Focus mode. Freddy sleeps.',
+      desc:      'Focus mode. Freddy is jacked.',
       accent:    '#1A1A2E',
       speedMult: 0,
       freeze:    true,
-      introText: 'Freddy is keeping watch. The room is yours.',
+      introText: 'Freddy is keeping watch. Muscles and all. The room is yours.',
     },
     'curious': {
       label:     'CURIOUS',
-      desc:      'Just exploring.',
+      desc:      'Just exploring. Freddy has opinions.',
       accent:    '#2D3561',
       speedMult: 1,
       freeze:    false,
-      introText: 'This is Freddy. He will follow you around. He means well.',
+      introText: 'This is Freddy. He is wearing his thinking glasses. He means well.',
     },
     'nervous': {
       label:     'NERVOUS',
-      desc:      'You\'ve got this.',
+      desc:      'You\'ve got this. Breathe.',
       accent:    '#6B8F71',
       speedMult: 0.5,
       freeze:    false,
@@ -46,11 +48,11 @@
     },
     'inspired': {
       label:     'INSPIRED',
-      desc:      'Gold everything. Go write.',
+      desc:      'Gold everything. Freddy is royalty.',
       accent:    '#C9A84C',
       speedMult: 1.6,
       freeze:    false,
-      introText: 'Freddy feels it. The energy is real. Go write something brilliant.',
+      introText: 'Freddy has his crown on. The energy is real. Go write something brilliant.',
     },
     'chaotic': {
       label:     'CHAOTIC',
@@ -66,29 +68,27 @@
   var DEFAULT_MOOD = 'curious';
 
   function readSavedMood() {
-    try { return localStorage.getItem(STORAGE_KEY) || DEFAULT_MOOD; }
-    catch (e) { return DEFAULT_MOOD; }
+    try { return localStorage.getItem(STORAGE_KEY) || null; }
+    catch (e) { return null; }
   }
 
 
   /* ─────────────────────────────────────────────────────────────
      2. FLASH-SAFE EARLY APPLY
-     The inline <script> in <head> has already written data-mood
-     to <html> before first paint. This syncs the JS state.
   ───────────────────────────────────────────────────────────── */
-  var activeMood = readSavedMood();
+  var savedMood  = readSavedMood();
+  var activeMood = savedMood || DEFAULT_MOOD;
   document.documentElement.setAttribute('data-mood', activeMood);
 
 
   /* ─────────────────────────────────────────────────────────────
      3. GLOBAL FREDDY BRIDGE
-     freddy.js reads window.__MINERVA.speedMult / .freeze in its
-     requestAnimationFrame loop.
   ───────────────────────────────────────────────────────────── */
   var cfg = MOODS[activeMood] || MOODS[DEFAULT_MOOD];
   window.__MINERVA = {
-    speedMult: cfg.speedMult,
-    freeze:    cfg.freeze,
+    speedMult:  cfg.speedMult,
+    freeze:     cfg.freeze,
+    activeMood: activeMood,
   };
 
 
@@ -102,15 +102,20 @@
 
     document.documentElement.setAttribute('data-mood', safeKey);
 
-    window.__MINERVA.speedMult = mood.speedMult;
-    window.__MINERVA.freeze    = mood.freeze;
+    window.__MINERVA.speedMult  = mood.speedMult;
+    window.__MINERVA.freeze     = mood.freeze;
+    window.__MINERVA.activeMood = safeKey;
 
-    // Signal freddy.js — handles wake-from-freeze
     document.dispatchEvent(new CustomEvent('minerva:mood', {
       detail: { mood: safeKey, freeze: mood.freeze },
     }));
 
-    // Update intro text if the card is still visible
+    // Apply Freddy costume (freddy.js exposes this)
+    if (window.__applyFreddyCostume) {
+      window.__applyFreddyCostume(safeKey);
+    }
+
+    // Update intro text if still visible
     var introEl = document.querySelector('#freddy-intro .freddy-intro-text');
     if (introEl) introEl.textContent = mood.introText;
 
@@ -121,11 +126,88 @@
 
 
   /* ─────────────────────────────────────────────────────────────
-     5. MOOD SELECTOR PANEL  (injected at DOMContentLoaded)
+     5. MOOD GATE  (first visit — main page only)
+        Appears after the loading screen fades out.
+        Blocks site-content until user picks a mood.
+  ───────────────────────────────────────────────────────────── */
+  var isFirstVisit = !savedMood;
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var loadingScreen = document.getElementById('loading-screen');
+    var siteContent   = document.getElementById('site-content');
+
+    // Only run mood gate on pages with a loading screen (index.html)
+    if (!loadingScreen || !isFirstVisit) return;
+
+    // Prevent site-content from auto-fading in
+    if (siteContent) {
+      siteContent.style.animation = 'none';
+      siteContent.style.opacity   = '0';
+    }
+
+    // Build mood gate
+    var gate = document.createElement('div');
+    gate.id  = 'mood-gate';
+    gate.setAttribute('role',       'dialog');
+    gate.setAttribute('aria-modal', 'true');
+    gate.setAttribute('aria-label', 'How are you feeling today?');
+
+    var gateOptionsHTML = Object.keys(MOODS).map(function (k) {
+      var m = MOODS[k];
+      return (
+        '<button class="mood-gate-btn" data-mood-key="' + k + '" type="button">' +
+          '<div class="mood-gate-dot" style="background:' + m.accent + ';"></div>' +
+          '<span class="mood-gate-label">' + m.label + '</span>' +
+          '<span class="mood-gate-desc">'  + m.desc  + '</span>' +
+        '</button>'
+      );
+    }).join('');
+
+    gate.innerHTML =
+      '<h2 class="mood-gate-title">How are we feeling?</h2>' +
+      '<p class="mood-gate-sub">This shapes your experience and Freddy\'s outfit.</p>' +
+      '<div class="mood-gate-options">' + gateOptionsHTML + '</div>';
+
+    document.body.appendChild(gate);
+
+    // Show gate after loading screen finishes (~4.4s)
+    var GATE_DELAY = 4400;
+    setTimeout(function () {
+      gate.classList.add('gate--visible');
+      // Trap focus on gate
+      var firstBtn = gate.querySelector('.mood-gate-btn');
+      if (firstBtn) firstBtn.focus();
+    }, GATE_DELAY);
+
+    // Handle selection
+    gate.addEventListener('click', function (e) {
+      var btn = e.target.closest('.mood-gate-btn');
+      if (!btn) return;
+      var key = btn.dataset.moodKey;
+      applyMood(key, true);
+
+      // Dismiss gate
+      gate.classList.add('gate--out');
+      gate.classList.remove('gate--visible');
+
+      // Fade in site content
+      setTimeout(function () {
+        if (siteContent) {
+          siteContent.style.transition = 'opacity 0.65s ease';
+          siteContent.style.opacity    = '1';
+        }
+        setTimeout(function () {
+          if (gate.parentNode) gate.parentNode.removeChild(gate);
+        }, 500);
+      }, 300);
+    });
+  });
+
+
+  /* ─────────────────────────────────────────────────────────────
+     6. MOOD SELECTOR PANEL  (nav toggle)
   ───────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function () {
-
-    /* ── Build panel ── */
     var panel = document.createElement('div');
     panel.id        = 'mood-panel';
     panel.className = 'chromatic-glass';
@@ -153,7 +235,6 @@
 
     document.body.appendChild(panel);
 
-    /* ── Highlight the active mood ── */
     function refreshActive(key) {
       panel.querySelectorAll('.mood-btn').forEach(function (btn) {
         var on = btn.dataset.moodKey === key;
@@ -163,7 +244,6 @@
     }
     refreshActive(activeMood);
 
-    /* ── Open / close helpers ── */
     function openPanel() {
       var toggleEl = document.getElementById('mood-toggle');
       if (toggleEl) {
@@ -180,7 +260,6 @@
       panel.setAttribute('aria-hidden', 'true');
     }
 
-    /* ── Nav toggle button ── */
     var toggleBtn = document.getElementById('mood-toggle');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', function (e) {
@@ -189,7 +268,6 @@
       });
     }
 
-    /* ── Mood option selection ── */
     panel.addEventListener('click', function (e) {
       var btn = e.target.closest('.mood-btn');
       if (!btn) return;
@@ -199,67 +277,51 @@
       setTimeout(closePanel, 180);
     });
 
-    /* ── Close on outside click ── */
     document.addEventListener('click', function (e) {
       if (
         panel.classList.contains('mood-panel--open') &&
         !panel.contains(e.target) &&
         e.target.id !== 'mood-toggle'
-      ) {
-        closePanel();
-      }
+      ) closePanel();
     });
 
-    /* ── Close on Escape ── */
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && panel.classList.contains('mood-panel--open')) {
-        closePanel();
-      }
+      if (e.key === 'Escape' && panel.classList.contains('mood-panel--open')) closePanel();
     });
   });
 
 
   /* ─────────────────────────────────────────────────────────────
-     6. COOKIE CONSENT  (injected at DOMContentLoaded)
+     7. COOKIE CONSENT
   ───────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function () {
     var COOKIE_KEY = 'minerva-cookies-accepted';
     var decision;
     try { decision = localStorage.getItem(COOKIE_KEY); } catch (e) {}
-    if (decision !== null) return;
+    if (decision !== null && decision !== undefined) return;
 
-    /* ── Mini Freddy carrying a gold cookie SVG ── */
     var MINI_FREDDY =
       '<svg viewBox="0 0 72 60" width="54" height="46" overflow="visible" ' +
       'xmlns="http://www.w3.org/2000/svg">' +
-        /* tail */
         '<path d="M40,48 C52,42 58,32 53,22" fill="none" stroke="#DDDBD4" ' +
         'stroke-width="5.5" stroke-linecap="round"/>' +
-        /* body */
         '<polygon points="18,53 30,49 42,53 40,34 20,34" fill="#F0EFE9"/>' +
         '<polygon points="22,34 38,34 36,44 24,44" fill="#E6E4DE" opacity="0.6"/>' +
-        /* head */
         '<circle cx="30" cy="21" r="13" fill="#F5F4F0"/>' +
-        /* left ear */
         '<polygon id="ccear-l" points="16,16 21,6 27,15" fill="#F5F4F0"/>' +
         '<polygon points="18,15.5 21,8 25.5,15" fill="#F0BFC8" opacity="0.75"/>' +
-        /* right ear */
         '<polygon id="ccear-r" points="33,15 39,6 44,16" fill="#F5F4F0"/>' +
         '<polygon points="34.5,15 39,8 42,15.5" fill="#F0BFC8" opacity="0.75"/>' +
-        /* eyes */
         '<circle cx="24.5" cy="20" r="4.5" fill="#1A1A2E"/>' +
         '<circle cx="35.5" cy="20" r="4.5" fill="#1A1A2E"/>' +
         '<circle cx="25.9" cy="18.7" r="1.6" fill="white"/>' +
         '<circle cx="36.9" cy="18.7" r="1.6" fill="white"/>' +
-        /* nose + mouth */
         '<ellipse cx="30" cy="25.5" rx="2" ry="1.4" fill="#F0A0B5"/>' +
         '<path d="M27.8,27 Q30,29.2 32.2,27" fill="none" stroke="#D4A0AC" ' +
         'stroke-width="0.9" stroke-linecap="round"/>' +
-        /* collar */
         '<path d="M19,32 Q30,36 41,32" fill="none" stroke="#C9A84C" ' +
         'stroke-width="3.5" stroke-linecap="round"/>' +
         '<circle cx="30" cy="35" r="2.5" fill="#B8963E"/>' +
-        /* gold cookie held in raised paw */
         '<g transform="translate(49,22)">' +
           '<circle cx="0" cy="0" r="9" fill="#C9A84C"/>' +
           '<circle cx="-3" cy="-2.5" r="1.6" fill="#8A6B20"/>' +
@@ -291,10 +353,9 @@
 
     document.body.appendChild(consent);
 
-    /* Show after the loading screen finishes */
     setTimeout(function () {
       consent.classList.add('cc--visible');
-    }, 5100);
+    }, 5500);
 
     function dismiss(el) {
       el.classList.remove('cc--visible');
@@ -310,7 +371,6 @@
 
     document.getElementById('cc-decline').addEventListener('click', function () {
       try { localStorage.setItem(COOKIE_KEY, 'false'); } catch (e) {}
-      /* Droop the ears */
       var earL = consent.querySelector('#ccear-l');
       var earR = consent.querySelector('#ccear-r');
       if (earL) {
@@ -329,7 +389,7 @@
 
 
   /* ─────────────────────────────────────────────────────────────
-     7. FREDDY INTRO TEXT  (mood-aware)
+     8. FREDDY INTRO TEXT  (mood-aware)
   ───────────────────────────────────────────────────────────── */
   document.addEventListener('DOMContentLoaded', function () {
     var introEl = document.querySelector('#freddy-intro .freddy-intro-text');
@@ -339,9 +399,7 @@
 
 
   /* ─────────────────────────────────────────────────────────────
-     8. CHAOTIC RANDOM BAT
-     Every 30 seconds while in CHAOTIC mood, 3% chance Freddy
-     bats at a random .btn or .card visible in the viewport.
+     9. CHAOTIC RANDOM BAT
   ───────────────────────────────────────────────────────────── */
   var _chaoticBatInterval = null;
 
@@ -354,7 +412,6 @@
       var freddyEl = document.getElementById('freddy');
       if (!freddyEl || freddyEl.classList.contains('freddy-bat')) return;
 
-      /* Pick a random element that's fully in view */
       var candidates = Array.from(
         document.querySelectorAll('.btn:not([disabled]), .card, .feature-card')
       ).filter(function (el) {
