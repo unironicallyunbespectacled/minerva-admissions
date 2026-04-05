@@ -792,4 +792,119 @@
     checkDeepLink();
   });
 
+
+  /* ─────────────────────────────────────────────────────────────
+     18. CULTURAL EASTER EGGS
+     Click anywhere on a competition card (not on buttons) to
+     trigger a culturally-resonant burst for that country.
+  ───────────────────────────────────────────────────────────── */
+  var COUNTRY_EASTER_EGGS = {
+    'Nigeria': {
+      colors: ['#008751', '#FFFFFF', '#008751', '#FFFFFF'],
+      flag:   '🇳🇬',
+      label:  'Naija!'
+    },
+    'Kenya': {
+      colors: ['#006600', '#CC0000', '#000000', '#FFFFFF'],
+      flag:   '🇰🇪',
+      label:  'Kenya!'
+    },
+    'Ghana': {
+      colors: ['#006B3F', '#FCD116', '#CE1126', '#000000'],
+      flag:   '🇬🇭',
+      label:  'Ghana!'
+    },
+    'South Africa': {
+      colors: ['#007A4D', '#FFB612', '#DE3831', '#002395', '#000000'],
+      flag:   '🇿🇦',
+      label:  'SA!'
+    },
+    'India': {
+      colors: ['#FF9933', '#FFFFFF', '#138808', '#000080'],
+      flag:   '🇮🇳',
+      label:  'India!'
+    },
+    'Ethiopia': {
+      colors: ['#078930', '#FCDD09', '#DA121A'],
+      flag:   '🇪🇹',
+      label:  'Ethiopia!'
+    },
+    'International': {
+      colors: ['#C9A84C', '#F0D080', '#FFFFFF', '#1A1A2E'],
+      flag:   '🌍',
+      label:  'Global!'
+    },
+    'Pan-African': {
+      colors: ['#C9A84C', '#008751', '#006600', '#FCD116'],
+      flag:   '🌍',
+      label:  'Africa!'
+    },
+    'East Africa': {
+      colors: ['#006600', '#CC0000', '#000000', '#FFFFFF'],
+      flag:   '🌍',
+      label:  'East Africa!'
+    },
+  };
+
+  function spawnCountryBurst(x, y, colors, flag) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    // Flag emoji burst
+    var flagEl = document.createElement('div');
+    flagEl.textContent = flag;
+    flagEl.style.cssText =
+      'position:fixed;left:' + x + 'px;top:' + y + 'px;' +
+      'font-size:36px;pointer-events:none;z-index:99999;' +
+      'transform:translate(-50%,-50%);';
+    document.body.appendChild(flagEl);
+
+    // Color burst particles
+    for (var i = 0; i < 20; i++) {
+      var p     = document.createElement('div');
+      var color = colors[i % colors.length];
+      p.style.cssText =
+        'position:fixed;width:8px;height:8px;border-radius:50%;' +
+        'background:' + color + ';left:' + x + 'px;top:' + y + 'px;' +
+        'pointer-events:none;z-index:99998;transform:translate(-50%,-50%);';
+      document.body.appendChild(p);
+
+      var angle = (i / 20) * Math.PI * 2;
+      var dist  = 40 + Math.random() * 70;
+      var dx    = Math.cos(angle) * dist;
+      var dy    = Math.sin(angle) * dist;
+
+      p.animate([
+        { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+        { transform: 'translate(calc(-50% + ' + dx + 'px), calc(-50% + ' + dy + 'px)) scale(0)',
+          opacity: 0 }
+      ], { duration: 1200, easing: 'cubic-bezier(0,0.9,0.57,1)', fill: 'forwards' })
+        .onfinish = function(el) { return function() { if (el.parentNode) el.parentNode.removeChild(el); }; }(p);
+    }
+
+    // Fade flag up
+    flagEl.animate([
+      { opacity: 1, transform: 'translate(-50%,-60%) scale(1)' },
+      { opacity: 0, transform: 'translate(-50%,-100%) scale(1.4)' }
+    ], { duration: 1000, delay: 400, fill: 'forwards' })
+      .onfinish = function() { if (flagEl.parentNode) flagEl.parentNode.removeChild(flagEl); };
+  }
+
+  // Delegate click on competition cards (added once, catches dynamically rendered cards)
+  document.addEventListener('click', function (e) {
+    // Ignore clicks on buttons inside cards
+    if (e.target.closest('.btn') || e.target.tagName === 'A') return;
+
+    var card = e.target.closest('.comp-card');
+    if (!card) return;
+
+    var compId  = card.dataset.id;
+    var comp    = allCompetitions.find(function(c) { return c.id === compId; });
+    if (!comp) return;
+
+    var egg = COUNTRY_EASTER_EGGS[comp.country];
+    if (!egg) return;
+
+    spawnCountryBurst(e.clientX, e.clientY, egg.colors, egg.flag);
+  });
+
 })();
