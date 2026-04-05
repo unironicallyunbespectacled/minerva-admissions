@@ -8,14 +8,56 @@
   <!-- You found something most people never look for. That quality has a name. -->
   <!-- If you want to understand how this works, everything is on GitHub. -->
 
-  <!-- Mood flash-prevention: apply saved mood to <html> before CSS renders -->
+  <!-- Mood flash-prevention + first-visit detection -->
   <script>
     (function () {
       try {
         var m = localStorage.getItem('minerva-mood');
         if (m) document.documentElement.setAttribute('data-mood', m);
+        else   document.documentElement.classList.add('first-visit');
       } catch (e) {}
     })();
+  </script>
+
+  <!-- Device detection: runs before CSS so classes are available on first paint -->
+  <script>
+  (function() {
+    var ua  = navigator.userAgent;
+    var w   = window.screen.width;
+    var dpr = window.devicePixelRatio || 1;
+    var cls = [];
+    function getGPU() {
+      try {
+        var c  = document.createElement('canvas');
+        var gl = c.getContext('webgl') || c.getContext('experimental-webgl');
+        if (!gl) return '';
+        var ext = gl.getExtension('WEBGL_debug_renderer_info');
+        return ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : '';
+      } catch(e) { return ''; }
+    }
+    var gpu = getGPU();
+    if (/iPhone/.test(ua)) {
+      cls.push('device-iphone');
+      cls.push((gpu.indexOf('A17') > -1 || gpu.indexOf('A16') > -1) ? 'iphone-pro' : 'iphone-standard');
+    } else if (/iPad/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+      cls.push('device-ipad');
+      cls.push((gpu.indexOf('M2') > -1 || gpu.indexOf('M4') > -1) ? 'ipad-modern' : 'ipad-classic');
+    } else if (/Samsung|SM-T|SM-X/.test(ua)) {
+      cls.push('device-samsung-tablet');
+    } else if (/Samsung|SM-G|SM-S|SM-A/.test(ua)) {
+      cls.push('device-samsung-phone');
+    } else if (/Android/.test(ua)) {
+      cls.push('device-android');
+    } else if (navigator.platform && navigator.platform.indexOf('Mac') > -1) {
+      cls.push('os-macos');
+      cls.push(w <= 1728 ? 'device-macbook' : 'device-imac');
+    } else if (navigator.platform && navigator.platform.indexOf('Win') > -1) {
+      cls.push('os-windows');
+    } else if (navigator.platform && navigator.platform.indexOf('Linux') > -1) {
+      cls.push('os-linux');
+    }
+    cls.forEach(function(c) { document.documentElement.classList.add(c); });
+  })();
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,6 +68,7 @@
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/freddy.css">
   <link rel="stylesheet" href="css/glassmorphism.css">
+  <link rel="stylesheet" href="css/device-themes.css">
 
   <style>
     /* ══════════════════════════════════════════════════
@@ -130,6 +173,11 @@
     #site-content {
       opacity: 0;
       animation: site-fade-in 0.65s ease 4.1s forwards;
+    }
+
+    /* On first visit, mood gate handles the fade-in via JS */
+    html.first-visit #site-content {
+      animation: none !important;
     }
 
     @keyframes site-fade-in {
@@ -621,7 +669,18 @@
 
     <!-- Navigation -->
     <header id="nav" role="banner">
-      <a href="index.html" class="wordmark" id="wordmark" aria-label="Minerva — go home">MINERVA</a>
+      <a href="index.html" class="wordmark nav-logo" id="wordmark" aria-label="Minerva — go home"
+         style="display:inline-flex;align-items:center;transition:transform 200ms ease;"
+         onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        <svg width="44" height="52" viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M30,4 C44,4 54,14 54,28 C54,42 44,52 30,52 C20,52 12,47 8,38 C6,33 6,28 8,23 C12,13 20,8 30,8"
+                stroke="white" stroke-width="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M30,4 C44,4 54,14 54,28 C54,42 44,52 30,52 C20,52 12,47 8,38"
+                stroke="rgba(255,255,255,0.15)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          <text x="30" y="63" text-anchor="middle" font-family="Georgia, serif" font-size="9"
+                font-weight="bold" fill="white" letter-spacing="2">MINERVA</text>
+        </svg>
+      </a>
 
       <nav class="nav-links" aria-label="Main navigation">
         <a href="apply/index.html"  class="nav-link nav-link--apply">Apply</a>
@@ -672,6 +731,10 @@
           <p class="hero-sub">
             Tools to help you prove who you are —<br>
             not just what looks good on paper.
+          </p>
+          <p class="hero-sub" style="margin-top:var(--sp-2);font-size:clamp(0.875rem,2vw,1.05rem);color:rgba(255,255,255,0.5);">
+            Most application tools help you sound impressive.<br>
+            This one helps you sound like you.
           </p>
           <div class="hero-ctas">
             <a href="apply/index.html"  class="btn btn-gold">Start My Application</a>
@@ -740,6 +803,179 @@
 
         </div>
       </section>
+
+      <!-- "For the student who almost did not apply" -->
+      <section id="almost-section" style="
+        background: #0A0A14;
+        padding: var(--sp-12) var(--sp-7);
+        text-align: center;
+      " aria-labelledby="almost-title">
+        <div style="max-width:600px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:var(--sp-6);">
+          <h2 id="almost-title" style="
+            font-family: var(--font-display);
+            font-size: clamp(1.4rem, 3.5vw, 2.1rem);
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.01em;
+            margin: 0;
+          ">For the student who almost did not apply</h2>
+          <p style="
+            font-family: var(--font-body);
+            font-size: clamp(0.9rem, 2vw, 1.05rem);
+            color: var(--dark-text-2, #9B99A8);
+            line-height: 1.7;
+            margin: 0;
+          ">If you have been wondering whether your story is
+          'good enough' — you are exactly who this was built for.
+          Minerva accepts students from over 80 countries. What matters
+          is not where you went to school. It is how you think.</p>
+          <a href="apply/index.html" class="btn btn-gold" style="margin-top:var(--sp-2);">
+            Begin Your Application
+          </a>
+        </div>
+      </section>
+
+      <!-- Objection Alchemy — flip every reason not to apply -->
+      <section id="objections" style="
+        background: var(--color-cream);
+        padding: var(--sp-12) var(--sp-7);
+      " aria-labelledby="obj-title">
+        <div style="max-width:var(--container-wide);margin:0 auto;">
+          <p style="
+            font-family: var(--font-body); font-size:11px; font-weight:500;
+            letter-spacing:0.12em; text-transform:uppercase;
+            color:var(--color-gold-dim); text-align:center; margin-bottom:var(--sp-3);
+          ">The honest truth</p>
+          <h2 id="obj-title" style="
+            font-family:var(--font-display); font-size:clamp(1.4rem,3.5vw,2.1rem);
+            font-weight:700; color:var(--color-ink); text-align:center;
+            letter-spacing:-0.01em; margin-bottom:var(--sp-3);
+          ">Every reason not to apply — answered</h2>
+          <p style="
+            font-family:var(--font-body); font-size:14px; color:var(--color-academic);
+            text-align:center; max-width:520px; margin:0 auto var(--sp-10);
+            line-height:1.65;
+          ">The things that scare you about Minerva are, on closer inspection, exactly the reasons to go.</p>
+
+          <div id="objection-cards" style="
+            display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+            gap:var(--sp-5);
+          "></div>
+
+          <p id="obj-see-more" style="text-align:center;margin-top:var(--sp-8);">
+            <button id="obj-expand-btn" class="btn btn-secondary" type="button">
+              See all 12 objections
+            </button>
+          </p>
+        </div>
+      </section>
+
+      <style>
+        .obj-card {
+          background: var(--color-surface);
+          border: 1px solid var(--color-border);
+          border-radius: var(--r-xl);
+          padding: var(--sp-6);
+          cursor: pointer;
+          transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+          position: relative;
+          overflow: hidden;
+        }
+        .obj-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 32px rgba(26,26,46,0.10);
+          border-color: var(--color-border-strong);
+        }
+        .obj-card.flipped .obj-front { display: none; }
+        .obj-card.flipped .obj-back  { display: flex; }
+        .obj-front, .obj-back { display: flex; flex-direction: column; gap: var(--sp-3); }
+        .obj-back  { display: none; }
+        .obj-tag {
+          font-family: var(--font-body); font-size: 9px; font-weight: 600;
+          letter-spacing: 0.14em; text-transform: uppercase;
+          color: var(--color-gold-dim); margin: 0;
+        }
+        .obj-objection {
+          font-family: var(--font-display); font-size: 1rem; font-weight: 600;
+          color: var(--color-ink); margin: 0; line-height: 1.4;
+        }
+        .obj-flip-cue {
+          font-family: var(--font-body); font-size: 12px;
+          color: var(--color-academic); margin: 0 0 0 auto;
+          align-self: flex-end;
+        }
+        .obj-flip-label {
+          font-family: var(--font-body); font-size: 9px; font-weight: 600;
+          letter-spacing: 0.14em; text-transform: uppercase;
+          color: var(--color-gold); margin: 0;
+        }
+        .obj-answer {
+          font-family: var(--font-body); font-size: 13px;
+          color: var(--color-ink); margin: 0; line-height: 1.65;
+        }
+        .obj-card.flipped { border-color: rgba(201,168,76,0.3); background: rgba(201,168,76,0.04); }
+        .obj-card--hidden { display: none; }
+      </style>
+
+      <script>
+      (function() {
+        var OBJECTIONS = [
+          { tag: 'Academic', obj: 'The application is too hard.', flip: 'The hardness is the filter — and it works in your favor. No SAT required. Just your mind.' },
+          { tag: 'Structural', obj: 'There is no campus.', flip: 'Your campus is San Francisco, Seoul, Berlin, Hyderabad, Buenos Aires, London, and Taipei. That\'s not a gap — it\'s the whole point.' },
+          { tag: 'Financial', obj: 'It is expensive.', flip: 'Minerva costs dramatically less than comparable elite universities. No stadium fees. No construction debt. Just the education.' },
+          { tag: 'Logistical', obj: 'I have to feed myself across 7 countries.', flip: 'You learn to cook for yourself in 7 of the world\'s greatest food cities. That is not a cost. That is a curriculum.' },
+          { tag: 'Access', obj: 'Visa and immigration is impossible.', flip: 'No university has navigated 100+ nationalities through 7 countries like Minerva has. Their support team has seen your situation — probably many times.' },
+          { tag: 'Social', obj: 'The cohort is tiny. One bad relationship ruins everything.', flip: 'You rotate to a new city with a fresh context every few months. The cohort is your foundation. The world is your escape valve. Both are features.' },
+          { tag: 'Structural', obj: 'No one will recognize the degree.', flip: 'McKinsey, Google, Jane Street, and top PhD programs have hired and admitted Minerva graduates. The signal is strong — and growing.' },
+          { tag: 'Academic', obj: 'No lectures. What if the pedagogy fails me?', flip: 'Passive lectures produce 5% long-term retention. Minerva\'s model is backed by 40 years of learning science. You\'re not trusting an experiment.' },
+          { tag: 'Social', obj: 'No fraternities, no clubs, no sports teams.', flip: 'You build community around real projects, real cities, and real stakes. That belonging is harder-won and more durable.' },
+          { tag: 'Access', obj: 'I don\'t know anyone who went there.', flip: 'Being first is the entire brand. Everyone around you chose novelty on purpose. That is the rarest cohort you can find yourself in.' },
+          { tag: 'Academic', obj: 'No research labs.', flip: 'You don\'t assist a professor\'s grant project. You work in actual industry labs, NGOs, and research institutions in the cities Minerva sends you to.' },
+          { tag: 'Access', obj: 'My background isn\'t strong enough.', flip: 'Minerva has students from 80+ countries. Your context is not a disadvantage. Your story is exactly what makes you valuable here.' },
+        ];
+
+        var container = document.getElementById('objection-cards');
+        var expandBtn = document.getElementById('obj-expand-btn');
+        var expanded  = false;
+        var INITIAL   = 6;
+
+        OBJECTIONS.forEach(function(o, i) {
+          var card = document.createElement('article');
+          card.className = 'obj-card reveal-target' + (i >= INITIAL ? ' obj-card--hidden' : '');
+          card.setAttribute('role', 'button');
+          card.setAttribute('tabindex', '0');
+          card.setAttribute('aria-label', 'Flip: ' + o.obj);
+          card.innerHTML =
+            '<div class="obj-front">' +
+              '<p class="obj-tag">' + o.tag + '</p>' +
+              '<p class="obj-objection">' + o.obj + '</p>' +
+              '<span class="obj-flip-cue">Tap to flip →</span>' +
+            '</div>' +
+            '<div class="obj-back">' +
+              '<p class="obj-flip-label">The flip</p>' +
+              '<p class="obj-answer">' + o.flip + '</p>' +
+              '<span class="obj-flip-cue" style="color:var(--color-gold-dim);">← Tap to flip back</span>' +
+            '</div>';
+
+          function toggle() { card.classList.toggle('flipped'); }
+          card.addEventListener('click', toggle);
+          card.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+          });
+          container.appendChild(card);
+        });
+
+        if (expandBtn) {
+          expandBtn.addEventListener('click', function() {
+            expanded = !expanded;
+            container.querySelectorAll('.obj-card--hidden').forEach(function(c) {
+              c.classList.toggle('obj-card--hidden', !expanded);
+            });
+            expandBtn.textContent = expanded ? 'Show fewer' : 'See all 12 objections';
+          });
+        }
+      })();
+      </script>
 
     </main>
 
