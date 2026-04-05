@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — Minerva Admissions</title>
+
+  <!-- Mood flash-prevention -->
+  <script>
+    (function () {
+      try {
+        var m = localStorage.getItem('minerva-mood');
+        if (m) document.documentElement.setAttribute('data-mood', m);
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/design-system.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/freddy.css">
+
+  <style>
+    html, body {
+      height:     100%;
+      background: #000000;
+      margin:     0;
+    }
+
+    body {
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      min-height:      100vh;
+      overflow:        hidden;
+    }
+
+    .page-404 {
+      text-align:  center;
+      max-width:   560px;
+      padding:     var(--sp-7);
+    }
+
+    /* ── 404 number ── */
+    .not-found-number {
+      font-family:    var(--font-display);
+      font-size:      clamp(5rem, 18vw, 9rem);
+      font-weight:    700;
+      color:          var(--color-gold);
+      letter-spacing: -0.04em;
+      line-height:    1;
+      margin-bottom:  var(--sp-8);
+      opacity:        0;
+      animation:      fade-drop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s forwards;
+    }
+
+    /* ── Dialogue container ── */
+    .dialogue {
+      text-align:    left;
+      margin-bottom: var(--sp-8);
+      min-height:    120px;
+    }
+
+    .dialogue-line {
+      font-family:  var(--font-body);
+      font-size:    clamp(0.9375rem, 2.5vw, 1.0625rem);
+      line-height:  1.75;
+      margin-bottom: var(--sp-3);
+      min-height:   1.75em;
+    }
+
+    .speaker-minerva { color: var(--dark-text-2, #9B99A8); }
+    .speaker-student { color: var(--dark-text,   #E8E6E0); }
+    .speaker-minerva .speaker-name { color: var(--color-gold); }
+    .speaker-student .speaker-name { color: rgba(255,255,255,0.45); }
+
+    /* blinking cursor at end of active line */
+    .tw-cursor {
+      display:         inline-block;
+      width:           2px;
+      height:          1em;
+      background:      var(--color-gold);
+      vertical-align:  text-bottom;
+      margin-left:     2px;
+      animation:       blink-cursor 0.8s step-end infinite;
+    }
+
+    @keyframes blink-cursor {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    /* ── Actions ── */
+    .actions-404 {
+      opacity:   0;
+      animation: fade-up 0.5s ease forwards;
+      /* delay is set inline by JS after dialogue ends */
+    }
+
+    .actions-404 .btn {
+      margin-bottom: var(--sp-3);
+    }
+
+    /* ── Footnote ── */
+    .footnote-404 {
+      margin-top:     var(--sp-7);
+      font-family:    var(--font-body);
+      font-size:      11px;
+      color:          var(--color-academic);
+      line-height:    1.6;
+      opacity:        0;
+      animation:      fade-up 0.4s ease forwards;
+      /* delay set inline */
+    }
+
+    @keyframes fade-drop {
+      from { opacity: 0; transform: translateY(-16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .tw-cursor { animation: none; opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- OS Detection -->
+  <script>
+    (function () {
+      var ua  = navigator.userAgent;
+      var cls = /iPhone|iPad|iPod|Android/i.test(ua) ? 'os-mobile'
+              : /Mac/i.test(ua)                       ? 'os-mac'
+              : /Win/i.test(ua)                       ? 'os-win'
+              : /Linux/i.test(ua)                     ? 'os-linux'
+              : '';
+      if (cls) document.documentElement.classList.add(cls);
+    })();
+  </script>
+
+  <div class="page-404" role="main">
+    <p class="not-found-number" aria-label="404 — page not found">404</p>
+
+    <div class="dialogue" id="dialogue" role="region" aria-label="Socratic dialogue" aria-live="polite">
+      <!-- Lines are injected by JS typewriter -->
+    </div>
+
+    <div class="actions-404" id="actions-404" style="animation-delay:0s">
+      <a href="index.html" class="btn btn-gold">Return to your application</a>
+    </div>
+
+    <p class="footnote-404" id="footnote-404" style="animation-delay:0s">
+      Socrates also never found what he was looking for.<br>
+      But he asked better questions because of it.
+    </p>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      var CHAR_DELAY  = 40;   // ms per character
+      var LINE_GAP    = 700;  // ms pause between lines
+
+      var DIALOGUE = [
+        { speaker: 'Minerva', text: 'This page does not seem to exist.' },
+        { speaker: 'Student', text: 'But how can we be certain anything exists?' },
+        { speaker: 'Minerva', text: '\u2026Perhaps the real page was the ideas we had along the way.' },
+      ];
+
+      var container   = document.getElementById('dialogue');
+      var actionsEl   = document.getElementById('actions-404');
+      var footnoteEl  = document.getElementById('footnote-404');
+      var lineIndex   = 0;
+      var charIndex   = 0;
+      var currentLineEl = null;
+      var cursor        = null;
+      var timer         = null;
+
+      /* Respect reduced-motion: show everything instantly */
+      var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (reducedMotion) {
+        DIALOGUE.forEach(function (d) {
+          container.appendChild(buildCompleteLine(d));
+        });
+        showActions(0);
+        return;
+      }
+
+      function buildCompleteLine(d) {
+        var p = document.createElement('p');
+        p.className = 'dialogue-line speaker-' + d.speaker.toLowerCase();
+        var nameSpan = document.createElement('span');
+        nameSpan.className   = 'speaker-name';
+        nameSpan.textContent = d.speaker + ': ';
+        var textNode = document.createTextNode(d.text);
+        p.appendChild(nameSpan);
+        p.appendChild(textNode);
+        return p;
+      }
+
+      function startNextLine() {
+        if (lineIndex >= DIALOGUE.length) {
+          showActions(400);
+          return;
+        }
+
+        var d  = DIALOGUE[lineIndex];
+        var p  = document.createElement('p');
+        p.className = 'dialogue-line speaker-' + d.speaker.toLowerCase();
+
+        var nameSpan = document.createElement('span');
+        nameSpan.className   = 'speaker-name';
+        nameSpan.textContent = d.speaker + ': ';
+
+        var textSpan = document.createElement('span');
+        textSpan.className = 'dialogue-text';
+
+        cursor           = document.createElement('span');
+        cursor.className = 'tw-cursor';
+        cursor.setAttribute('aria-hidden', 'true');
+
+        p.appendChild(nameSpan);
+        p.appendChild(textSpan);
+        p.appendChild(cursor);
+        container.appendChild(p);
+
+        currentLineEl = textSpan;
+        charIndex     = 0;
+        typeNextChar();
+      }
+
+      function typeNextChar() {
+        var text = DIALOGUE[lineIndex].text;
+        if (charIndex < text.length) {
+          currentLineEl.textContent += text[charIndex];
+          charIndex++;
+          timer = setTimeout(typeNextChar, CHAR_DELAY);
+        } else {
+          /* Line done: remove cursor, pause, start next */
+          if (cursor && cursor.parentNode) cursor.parentNode.removeChild(cursor);
+          cursor = null;
+          lineIndex++;
+          timer = setTimeout(startNextLine, LINE_GAP);
+        }
+      }
+
+      function showActions(delay) {
+        actionsEl.style.animationDelay  = delay + 'ms';
+        footnoteEl.style.animationDelay = (delay + 200) + 'ms';
+      }
+
+      /* Kick off after the 404 number drops in */
+      setTimeout(startNextLine, 1100);
+    })();
+  </script>
+
+  <script src="js/mood.js"></script>
+  <script src="js/freddy.js"></script>
+
+</body>
+</html>

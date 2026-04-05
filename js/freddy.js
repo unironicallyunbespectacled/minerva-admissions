@@ -457,6 +457,159 @@
 
 
   /* ─────────────────────────────────────────────────────────────
+     6b. BROWSER CONSOLE MESSAGE
+  ───────────────────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', function () {
+    var enso =
+      '          ◯◯◯◯◯◯\n' +
+      '       ◯◯          ◯◯\n' +
+      '     ◯◯               ◯◯\n' +
+      '    ◯◯                  ◯\n' +
+      '   ◯◯                    ◯\n' +
+      '   ◯                      ◉\n' +
+      '   ◯                      ◯\n' +
+      '    ◯◯                  ◯◯\n' +
+      '      ◯◯              ◯◯\n' +
+      '         ◯◯◯◯◯◯◯◯◯◯';
+
+    var gold = 'color:#C9A84C;font-size:14px;font-family:monospace;line-height:1.4;';
+    var dim  = 'color:#9B99A8;font-size:13px;font-family:monospace;line-height:1.8;';
+
+    console.log('%c' + enso, gold);
+    console.log('%cCurious minds build curious things.', gold);
+    console.log('%cIf you are reading this, you might be one of us.', dim);
+    console.log('%c\u2192 minerva.edu/admissions', gold);
+  });
+
+
+  /* ─────────────────────────────────────────────────────────────
+     15. KONAMI CODE  (↑↑↓↓←→←→BA)
+  ───────────────────────────────────────────────────────────── */
+  (function () {
+    var SEQUENCE = [
+      'ArrowUp','ArrowUp','ArrowDown','ArrowDown',
+      'ArrowLeft','ArrowRight','ArrowLeft','ArrowRight',
+      'KeyB','KeyA',
+    ];
+    var progress = 0;
+
+    document.addEventListener('keydown', function (e) {
+      if (e.code === SEQUENCE[progress]) {
+        progress++;
+        if (progress === SEQUENCE.length) {
+          progress = 0;
+          triggerKonami();
+        }
+      } else {
+        progress = e.code === SEQUENCE[0] ? 1 : 0;
+      }
+    });
+
+    function triggerKonami() {
+      /* 50 confetti divs burst from centre */
+      var COLORS = ['#C9A84C','#F0D080','#ffffff','#1A1A2E','#2D3561'];
+      var cx = window.innerWidth  / 2;
+      var cy = window.innerHeight / 2;
+
+      for (var i = 0; i < 50; i++) {
+        var angle = Math.random() * Math.PI * 2;
+        var speed = Math.random() * 380 + 120;
+        var tx    = Math.cos(angle) * speed;
+        var ty    = Math.sin(angle) * speed;
+        var conf  = document.createElement('div');
+        Object.assign(conf.style, {
+          position:      'fixed',
+          width:         '8px',
+          height:        '8px',
+          borderRadius:  Math.random() > 0.5 ? '50%' : '2px',
+          background:    COLORS[Math.floor(Math.random() * COLORS.length)],
+          left:          cx + 'px',
+          top:           cy + 'px',
+          pointerEvents: 'none',
+          zIndex:        '9997',
+          opacity:       '1',
+          transition:    'transform ' + (600 + Math.random() * 400) + 'ms cubic-bezier(0,0,0.3,1), opacity 300ms ease ' + (400 + Math.random() * 200) + 'ms',
+          willChange:    'transform, opacity',
+        });
+        document.body.appendChild(conf);
+        requestAnimationFrame(function (el, tx, ty) {
+          return function () {
+            el.style.transform = 'translate(' + tx + 'px, ' + (ty - 60) + 'px) rotate(' + (Math.random() * 720) + 'deg)';
+            el.style.opacity   = '0';
+          };
+        }(conf, tx, ty));
+        setTimeout(function (el) { return function () { if (el.parentNode) el.parentNode.removeChild(el); }; }(conf), 1200);
+      }
+
+      /* Toast */
+      showKonamiToast();
+    }
+
+    function showKonamiToast() {
+      var existing = document.getElementById('konami-toast');
+      if (existing) existing.parentNode.removeChild(existing);
+
+      var toast = document.createElement('div');
+      toast.id = 'konami-toast';
+      Object.assign(toast.style, {
+        position:      'fixed',
+        top:           '80px',
+        left:          '50%',
+        transform:     'translateX(-50%) translateY(-10px)',
+        background:    'var(--color-surface, #fff)',
+        border:        '1px solid var(--color-border, rgba(26,26,46,0.12))',
+        borderRadius:  '12px',
+        padding:       '16px 20px',
+        fontFamily:    'var(--font-body, DM Sans, sans-serif)',
+        fontSize:      '14px',
+        color:         'var(--color-ink, #1A1A2E)',
+        lineHeight:    '1.5',
+        zIndex:        '9996',
+        boxShadow:     '0 8px 32px rgba(26,26,46,0.16)',
+        maxWidth:      '360px',
+        width:         'calc(100vw - 48px)',
+        opacity:       '0',
+        transition:    'opacity 300ms ease, transform 300ms var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1))',
+        display:       'flex',
+        flexDirection: 'column',
+        gap:           '10px',
+      });
+
+      var msg = document.createElement('p');
+      msg.textContent = 'Cheat code activated. Unfortunately, applications still require essays.';
+      msg.style.cssText = 'margin:0;';
+
+      var closeBtn = document.createElement('button');
+      closeBtn.textContent  = 'Worth a try';
+      closeBtn.style.cssText =
+        'align-self:flex-start;background:var(--color-gold,#C9A84C);color:#fff;' +
+        'border:none;border-radius:6px;padding:6px 14px;font-family:inherit;' +
+        'font-size:13px;font-weight:500;cursor:pointer;';
+      closeBtn.addEventListener('click', function () { dismissKonami(toast); });
+
+      toast.appendChild(msg);
+      toast.appendChild(closeBtn);
+      document.body.appendChild(toast);
+
+      requestAnimationFrame(function () {
+        toast.style.opacity   = '1';
+        toast.style.transform = 'translateX(-50%) translateY(0)';
+      });
+
+      var autoTimer = setTimeout(function () { dismissKonami(toast); }, 4000);
+      toast._autoTimer = autoTimer;
+    }
+
+    function dismissKonami(toast) {
+      clearTimeout(toast._autoTimer);
+      toast.style.opacity   = '0';
+      toast.style.transform = 'translateX(-50%) translateY(-10px)';
+      setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 320);
+    }
+  })();
+
+
+  /* ─────────────────────────────────────────────────────────────
      14. SAMSUNG EASTER EGG
          On Samsung Internet: replace Freddy with a geometric
          gold dragon for exactly 500 ms, then fade back.

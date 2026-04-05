@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Minerva Admissions</title>
 
+  <!-- You found something most people never look for. That quality has a name. -->
+  <!-- If you want to understand how this works, everything is on GitHub. -->
+
   <!-- Mood flash-prevention: apply saved mood to <html> before CSS renders -->
   <script>
     (function () {
@@ -661,6 +664,43 @@
 
   </div><!-- /#site-content -->
 
+  <!-- ══════════════════════════════════════════════
+       TYPEWRITER SECRET MODAL (Easter egg #7)
+       Accessible only by clicking MINERVA wordmark exactly 7 times in 5 seconds
+  ══════════════════════════════════════════════ -->
+  <div id="secret-modal" role="dialog" aria-modal="true"
+       aria-labelledby="secret-modal-title" aria-hidden="true"
+       style="display:none;position:fixed;inset:0;z-index:10001;
+              background:rgba(0,0,0,0.72);align-items:center;justify-content:center;padding:24px;">
+    <div class="chromatic-glass" id="secret-modal-box"
+         style="max-width:480px;width:100%;padding:48px 40px;
+                background:rgba(10,10,20,0.96);
+                border-radius:16px;position:relative;">
+      <button id="secret-modal-close"
+              style="position:absolute;top:16px;right:16px;background:none;border:none;
+                     color:rgba(255,255,255,0.5);cursor:pointer;padding:8px;line-height:1;"
+              aria-label="Close" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="18" y1="6"  x2="6"  y2="18"/>
+          <line x1="6"  y1="6"  x2="18" y2="18"/>
+        </svg>
+      </button>
+
+      <div id="secret-typewriter-content"
+           style="font-family:var(--font-display);font-size:clamp(1rem,3vw,1.25rem);
+                  color:var(--dark-text,#E8E6E0);line-height:1.85;min-height:120px;">
+      </div>
+
+      <div id="secret-modal-actions" style="margin-top:32px;display:none;">
+        <button class="btn btn-secondary" id="secret-modal-back" type="button"
+                style="color:rgba(255,255,255,0.7);border-color:rgba(255,255,255,0.2);">
+          Back to the application
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- ══════════════════════════════════════════════
        SCRIPTS
@@ -693,16 +733,121 @@
       }
     });
 
-    /* ── Wordmark: single full rotation on click ─────────────────── */
+    /* ── Wordmark: 7-click secret + spin ────────────────────────── */
     const wordmark = document.getElementById('wordmark');
+    let wordmarkClicks = 0;
+    let wordmarkTimer  = null;
+
     wordmark.addEventListener('click', function (e) {
       e.preventDefault();
+
+      wordmarkClicks++;
+      clearTimeout(wordmarkTimer);
+      wordmarkTimer = setTimeout(function () { wordmarkClicks = 0; }, 5000);
+
+      if (wordmarkClicks === 7) {
+        wordmarkClicks = 0;
+        clearTimeout(wordmarkTimer);
+        openSecretModal();
+        return;
+      }
+
       this.classList.add('spinning');
       this.addEventListener('animationend', () => {
         this.classList.remove('spinning');
-        window.location.href = this.getAttribute('href');
+        if (wordmarkClicks === 0) window.location.href = wordmark.getAttribute('href');
       }, { once: true });
     });
+
+    /* ── Secret modal (7-click easter egg) ───────────────────────── */
+    (function () {
+      var modal     = document.getElementById('secret-modal');
+      var box       = document.getElementById('secret-modal-box');
+      var content   = document.getElementById('secret-typewriter-content');
+      var actions   = document.getElementById('secret-modal-actions');
+      var closeBtn  = document.getElementById('secret-modal-close');
+      var backBtn   = document.getElementById('secret-modal-back');
+      var opener    = null;
+
+      var LINES = [
+        'You have found the long way.',
+        'The direct path is the application.',
+        'But we appreciate the wandering.',
+      ];
+      var CHAR_DELAY = 45;
+      var LINE_GAP   = 650;
+
+      window.openSecretModal = function () {
+        opener = wordmark;
+        content.innerHTML = '';
+        actions.style.display = 'none';
+        modal.style.display = 'flex';
+        modal.removeAttribute('aria-hidden');
+        document.body.style.overflow = 'hidden';
+
+        setTimeout(function () { box.focus && box.focus(); }, 50);
+        typeLines(LINES, 0);
+      };
+
+      function typeLines(lines, idx) {
+        if (idx >= lines.length) {
+          actions.style.display = 'block';
+          setTimeout(function () {
+            var btn = actions.querySelector('button');
+            if (btn) btn.focus();
+          }, 50);
+          return;
+        }
+
+        var p = document.createElement('p');
+        p.style.cssText = 'margin:0 0 8px;opacity:0;animation:none;';
+        p.style.opacity = '1';
+        content.appendChild(p);
+
+        var cursor = document.createElement('span');
+        cursor.style.cssText =
+          'display:inline-block;width:2px;height:1em;background:var(--color-gold,#C9A84C);' +
+          'vertical-align:text-bottom;margin-left:2px;animation:blink-secret 0.8s step-end infinite;';
+        cursor.setAttribute('aria-hidden', 'true');
+        p.appendChild(cursor);
+
+        var text = lines[idx];
+        var i    = 0;
+
+        function type() {
+          if (i < text.length) {
+            p.insertBefore(document.createTextNode(text[i]), cursor);
+            i++;
+            setTimeout(type, CHAR_DELAY);
+          } else {
+            p.removeChild(cursor);
+            setTimeout(function () { typeLines(lines, idx + 1); }, LINE_GAP);
+          }
+        }
+        type();
+      }
+
+      function closeModal() {
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+        if (opener) opener.focus();
+      }
+
+      closeBtn.addEventListener('click', closeModal);
+      backBtn.addEventListener('click',  closeModal);
+      modal.addEventListener('click', function (e) {
+        if (e.target === modal) closeModal();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && modal.style.display !== 'none') closeModal();
+      });
+
+      /* Blink keyframe for secret cursor */
+      var s = document.createElement('style');
+      s.textContent = '@keyframes blink-secret { 0%,100%{opacity:1} 50%{opacity:0} }';
+      document.head.appendChild(s);
+    })();
 
     /* ── Canvas ambient particle system (hero) ───────────────────── */
     (function () {

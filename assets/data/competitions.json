@@ -1,1 +1,247 @@
-[]
+[
+  {
+    "id": "riversman-2023",
+    "name": "RiversMAN Mathematics Challenge",
+    "country": "Nigeria",
+    "region": "Rivers State, Nigeria",
+    "year": "2023",
+    "description": "Annual mathematics competition organised by the Rivers State Mathematical Association (RiversMAN) for secondary school students across Rivers State. Tests algebra, geometry, statistics, and olympiad-level problem-solving across junior and senior divisions.",
+    "status": "organiser-verified",
+    "organiserContact": "riversman.ng@gmail.com",
+    "website": "https://facebook.com/riversman.ng",
+    "vouches": 14,
+    "results": [
+      { "rank": "1st", "name": "Chukwuemeka Obi",    "school": "Federal Government College, Port Harcourt", "result": "Gold" },
+      { "rank": "2nd", "name": "Adaeze Nwosu",        "school": "Saint Joseph Secondary School, PHC",        "result": "Silver" },
+      { "rank": "3rd", "name": "Ikenna Amadi",         "school": "Government Secondary School, PH",           "result": "Bronze" },
+      { "rank": "4th", "name": "Chiamaka Eze",         "school": "Rumuola Senior Secondary School",          "result": "Commendation" },
+      { "rank": "5th", "name": "Emeka Peterside",      "school": "Community Secondary School, Eleme",        "result": "Commendation" }
+    ]
+  },
+  {
+    "id": "cowbellpedia-2023",
+    "name": "Cowbellpedia Secondary School Mathematics TV Quiz",
+    "country": "Nigeria",
+    "region": "National, Nigeria",
+    "year": "2023",
+    "description": "Nigeria's premier mathematics television quiz competition, organised by Promasidor Nigeria Limited. Broadcast nationally on NTA and selected state television stations. Junior and senior categories. One of the most widely watched academic competitions in Nigeria.",
+    "status": "organiser-verified",
+    "organiserContact": "cowbellpedia@promasidor-ng.com",
+    "website": "https://cowbellpedia.com",
+    "vouches": 31,
+    "results": [
+      { "rank": "1st (Senior)", "name": "Oluwafemi Adeyemi",   "school": "Loyola Jesuit College, Abuja",      "result": "National Champion" },
+      { "rank": "2nd (Senior)", "name": "Nnamdi Okeke",         "school": "Federal Government College, Enugu", "result": "Runner-Up" },
+      { "rank": "3rd (Senior)", "name": "Fatimah Al-Hassan",    "school": "Government Day Secondary School, Kano", "result": "Third Place" },
+      { "rank": "1st (Junior)", "name": "Tolulope Adesanya",    "school": "Corona Secondary School, Lagos",    "result": "National Champion" },
+      { "rank": "2nd (Junior)", "name": "Baraka Idowu",         "school": "Atlantic Hall, Lagos",              "result": "Runner-Up" }
+    ]
+  },
+  {
+    "id": "stem-olympics-2023",
+    "name": "STEM Olympics Pan-African Championship",
+    "country": "Pan-African",
+    "region": "Sub-Saharan Africa",
+    "year": "2023",
+    "description": "Pan-African STEM competition bringing together secondary school students from over 20 African nations. Categories include robotics, coding challenge, mathematics relay, physics experiment design, and science communication. Hosted on a rotating country basis.",
+    "status": "community-pending",
+    "organiserContact": null,
+    "website": null,
+    "vouches": 7,
+    "results": [
+      { "rank": "Robotics 1st",  "name": "Team Nairobi Tech",  "school": "Alliance High School, Kenya",     "result": "Gold" },
+      { "rank": "Coding 1st",    "name": "Kofi Mensah",         "school": "Achimota School, Ghana",           "result": "Gold" },
+      { "rank": "Maths 1st",     "name": "Blessing Okonkwo",    "school": "Queens College, Lagos, Nigeria",   "result": "Gold" },
+      { "rank": "Physics 1st",   "name": "Amara Diallo",        "school": "Lycée Teranga, Dakar, Senegal",    "result": "Gold" }
+    ]
+  },
+  {
+    "id": "nmo-nigeria-2023",
+    "name": "Nigerian Mathematical Olympiad",
+    "country": "Nigeria",
+    "region": "National, Nigeria",
+    "year": "2023",
+    "description": "The official national mathematics olympiad that selects Nigeria's team for the International Mathematical Olympiad (IMO). Run through a two-stage process: state-level preliminary rounds followed by a national final. Top performers represent Nigeria internationally.",
+    "status": "organiser-verified",
+    "organiserContact": "nmo@maths.gov.ng",
+    "website": null,
+    "vouches": 22,
+    "results": [
+      { "rank": "1st", "name": "Abdullahi Musa",       "school": "Government Secondary School, Minna",       "result": "IMO Team Member" },
+      { "rank": "2nd", "name": "Uchenna Nwachukwu",    "school": "Federal Government College, Onitsha",      "result": "IMO Team Member" },
+      { "rank": "3rd", "name": "Yetunde Olatunji",     "school": "International School, University of Ibadan", "result": "IMO Team Member" },
+      { "rank": "4th", "name": "Suleiman Ibrahim",      "school": "Federal Government Academy, Suleja",       "result": "National Finalist" },
+      { "rank": "5th", "name": "Chidinma Nwaneri",      "school": "Queens College, Lagos",                    "result": "National Finalist" }
+    ]
+  },
+  {
+    "id": "lagos-debate-2023",
+    "name": "Lagos State Inter-School Debate Championship",
+    "country": "Nigeria",
+    "region": "Lagos State, Nigeria",
+    "year": "2023",
+    "description": "Annual parliamentary debate competition for secondary schools across Lagos State, organised by the Lagos State Ministry of Education. British Parliamentary format. Schools compete in both junior (JSS1–3) and senior (SSS1–3) divisions.",
+    "status": "recently-added",
+    "organiserContact": null,
+    "website": null,
+    "vouches": 3,
+    "results": [
+      { "rank": "1st (Senior)",  "name": "Corona Secondary School Team", "school": "Corona Secondary School, Agbara",  "result": "Champions" },
+      { "rank": "2nd (Senior)",  "name": "Atlantic Hall Team",            "school": "Atlantic Hall, Epe",               "result": "Finalists" },
+      { "rank": "Best Speaker",  "name": "Ifeoluwa Adeyinka",             "school": "Corona Secondary School, Agbara",  "result": "Best Overall Speaker" }
+    ]
+  },
+  {
+    "id": "kenya-science-2023",
+    "name": "Kenya National Science Congress",
+    "country": "Kenya",
+    "region": "National, Kenya",
+    "year": "2023",
+    "description": "Annual science fair and competition for Kenyan secondary school students organised by the Kenya National Examinations Council (KNEC) and the Ministry of Education. Projects are evaluated in biology, chemistry, physics, and computer science categories.",
+    "status": "organiser-verified",
+    "organiserContact": "sciencecongress@knec.ac.ke",
+    "website": null,
+    "vouches": 18,
+    "results": [
+      { "rank": "Biology 1st",     "name": "Wanjiru Kamau",     "school": "Alliance Girls High School",      "result": "Gold + National Rep" },
+      { "rank": "Chemistry 1st",   "name": "Brian Otieno",      "school": "Starehe Boys Centre",             "result": "Gold + National Rep" },
+      { "rank": "Physics 1st",     "name": "Amina Hussein",     "school": "Mwalimu National High School",    "result": "Gold + National Rep" },
+      { "rank": "CompSci 1st",     "name": "Kelvin Mwangi",     "school": "Nairobi School",                  "result": "Gold + National Rep" }
+    ]
+  },
+  {
+    "id": "gnsmq-2023",
+    "name": "Ghana National Science & Maths Quiz",
+    "country": "Ghana",
+    "region": "National, Ghana",
+    "year": "2023",
+    "description": "Ghana's most prestigious secondary school academic competition, broadcast on GTV and Adom TV. Tests science (biology, chemistry, physics) and mathematics in a relay format. Organised by the Ghana Education Service. Nationally followed and highly competitive.",
+    "status": "organiser-verified",
+    "organiserContact": "gnsmq@ges.gov.gh",
+    "website": "https://ghanaeducation.org/gnsmq",
+    "vouches": 27,
+    "results": [
+      { "rank": "National Champions", "name": "Prempeh College Team",   "school": "Prempeh College, Kumasi",   "result": "Champions" },
+      { "rank": "Runners-Up",          "name": "Achimota School Team",   "school": "Achimota School, Accra",    "result": "Finalists" },
+      { "rank": "3rd Place",           "name": "PRESEC-Legon Team",      "school": "PRESEC-Legon, Accra",       "result": "Semi-Finalists" }
+    ]
+  },
+  {
+    "id": "east-africa-debate-2023",
+    "name": "East African Schools Debate Championship",
+    "country": "East Africa",
+    "region": "Kenya, Uganda, Tanzania, Rwanda",
+    "year": "2023",
+    "description": "Annual competitive debate tournament bringing together secondary schools from Kenya, Uganda, Tanzania, and Rwanda. World Schools Debate format. Host country rotates annually. Aims to build critical thinking and public speaking across East Africa.",
+    "status": "community-pending",
+    "organiserContact": null,
+    "website": null,
+    "vouches": 5,
+    "results": [
+      { "rank": "1st",          "name": "Uganda National Team",   "school": "Makerere College School, Kampala",     "result": "Champions" },
+      { "rank": "2nd",          "name": "Kenya National Team",    "school": "Strathmore School, Nairobi",            "result": "Runners-Up" },
+      { "rank": "Best Speaker", "name": "Zawadi Mwangi",           "school": "Kenya High School",                    "result": "Best Speaker" }
+    ]
+  },
+  {
+    "id": "isef-2023",
+    "name": "International Science and Engineering Fair (ISEF)",
+    "country": "International",
+    "region": "Global",
+    "year": "2023",
+    "description": "The world's largest pre-college science competition, affiliated to Society for Science. Students win the right to attend by placing first or second at a qualifying affiliated fair. Categories include behavioural science, chemistry, engineering, environmental science, mathematics, and physics.",
+    "status": "organiser-verified",
+    "organiserContact": "isef@societyforscience.org",
+    "website": "https://www.societyforscience.org/isef",
+    "vouches": 94,
+    "results": [
+      { "rank": "Gordon E. Moore Award",  "name": "Redacted per request",  "school": "Various",  "result": "Grand Award" },
+      { "rank": "Intel Achievement Award", "name": "Redacted per request", "school": "Various",  "result": "Grand Award" }
+    ]
+  },
+  {
+    "id": "amc-2023",
+    "name": "AMC 10/12 (American Mathematics Competition)",
+    "country": "International",
+    "region": "USA and international affiliates",
+    "year": "2023",
+    "description": "The AMC 10 and AMC 12 are the first competitions in the series of competitions leading to the USA Mathematical Olympiad (USAMO) and ultimately the IMO. Administered globally. High scorers advance to the AIME, then to USAMO/USAJMO.",
+    "status": "organiser-verified",
+    "organiserContact": "amcinfo@maa.org",
+    "website": "https://maa.org/math-competitions",
+    "vouches": 63,
+    "results": []
+  },
+  {
+    "id": "deca-2023",
+    "name": "DECA International Career Development Conference",
+    "country": "International",
+    "region": "North America and international chapters",
+    "year": "2023",
+    "description": "DECA prepares emerging leaders and entrepreneurs in marketing, finance, hospitality and management. The ICDC is the global finals. Competitive events include written exams, role plays, and presentations judged by industry professionals.",
+    "status": "organiser-verified",
+    "organiserContact": "deca@deca.org",
+    "website": "https://www.deca.org",
+    "vouches": 48,
+    "results": []
+  },
+  {
+    "id": "science-olympiad-2023",
+    "name": "Science Olympiad National Tournament",
+    "country": "USA",
+    "region": "USA (national)",
+    "year": "2023",
+    "description": "Science Olympiad is one of the premier science competitions in the US, providing rigorous, standards-based challenges. Each team of 15 members competes in 23 events covering biology, chemistry, physics, earth science, and engineering.",
+    "status": "organiser-verified",
+    "organiserContact": "info@soinc.org",
+    "website": "https://www.soinc.org",
+    "vouches": 55,
+    "results": []
+  },
+  {
+    "id": "mun-hague-2023",
+    "name": "The Hague International Model United Nations (THIMUN)",
+    "country": "Netherlands",
+    "region": "International",
+    "year": "2023",
+    "description": "One of the world's largest and oldest Model UN conferences, held annually in The Hague, Netherlands. Over 3,200 delegates from across the world. THIMUN is the affiliated body that accredits many school MUN programs globally.",
+    "status": "organiser-verified",
+    "organiserContact": "info@thimun.org",
+    "website": "https://www.thimun.org",
+    "vouches": 41,
+    "results": []
+  },
+  {
+    "id": "nigeria-debate-national-2023",
+    "name": "Nigerian National Debate Championship",
+    "country": "Nigeria",
+    "region": "National, Nigeria",
+    "year": "2023",
+    "description": "The premier national secondary schools debate competition in Nigeria, organised in partnership with the National Association of Debate Coaches (NADC). World Schools Debate format. State winners compete at the national level.",
+    "status": "recently-added",
+    "organiserContact": null,
+    "website": null,
+    "vouches": 2,
+    "results": [
+      { "rank": "1st", "name": "Lagos State Team",   "school": "Corona Secondary School, Agbara", "result": "National Champions" },
+      { "rank": "2nd", "name": "Abuja FCT Team",     "school": "Loyola Jesuit College, Abuja",    "result": "Runners-Up" }
+    ]
+  },
+  {
+    "id": "pan-african-olympiad-2023",
+    "name": "Pan-African Mathematics Olympiad (PAMO)",
+    "country": "Pan-African",
+    "region": "Africa-wide",
+    "year": "2023",
+    "description": "Organised under the African Mathematical Union (AMU), PAMO is the African counterpart of the IMO. Countries submit teams of up to six students who compete in a two-day written examination. Results feed into IMO team selections for many African nations.",
+    "status": "organiser-verified",
+    "organiserContact": "amu-pamo@africamathunion.org",
+    "website": "https://www.africamathunion.org",
+    "vouches": 19,
+    "results": [
+      { "rank": "Gold",   "name": "Afolabi Olawale",    "school": "International School, University of Lagos", "result": "Gold Medal" },
+      { "rank": "Silver", "name": "Nyasha Moyo",         "school": "Prince Edward School, Zimbabwe",            "result": "Silver Medal" },
+      { "rank": "Bronze", "name": "Yasmin El-Sayed",     "school": "El-Nasr Language School, Egypt",            "result": "Bronze Medal" }
+    ]
+  }
+]

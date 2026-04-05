@@ -379,3 +379,89 @@ ol {
   -moz-osx-font-smoothing: grayscale;
   text-rendering:          optimizeLegibility;
 }
+
+
+/* ─────────────────────────────────────────────────────────────
+   13. REVEAL ANIMATIONS (IntersectionObserver targets)
+───────────────────────────────────────────────────────────── */
+.reveal-target {
+  opacity:    0;
+  transform:  translateY(14px);
+  transition: opacity 0.45s ease, transform 0.45s ease;
+}
+
+.reveal-target.revealed {
+  opacity:   1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-target,
+  .reveal-target.revealed {
+    opacity:    1;
+    transform:  none;
+    transition: none;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+   14. PRINT STYLES
+───────────────────────────────────────────────────────────── */
+@media print {
+  /* Hide navigation, decorative, and interactive elements */
+  #nav,
+  #freddy,
+  #laser-dot,
+  #loading-screen,
+  #freddy-intro,
+  #mood-panel,
+  #cookie-consent,
+  #particles,
+  #night-owl-toast,
+  #birthday-toast,
+  .zzz-bubble,
+  .nav-mood-btn,
+  .hero-bg-pulse,
+  .feature-link,
+  .signal-nav-row,
+  .export-actions,
+  .filter-row,
+  .comp-actions,
+  .vouch-row,
+  .modal-overlay,
+  canvas,
+  button:not(.btn-print) { display: none !important; }
+
+  /* Remove fixed positioning so content flows normally */
+  #nav { position: static !important; }
+
+  /* Restore full-page content visibility */
+  #site-content,
+  .ledger-shell,
+  .signal-shell,
+  main { opacity: 1 !important; padding-top: 0 !important; }
+
+  /* Expand all collapsible card bodies for print */
+  .comp-card-body-wrap { max-height: none !important; overflow: visible !important; }
+  .step            { display: block !important; }
+
+  body {
+    background: #fff;
+    color:      #000;
+    font-size:  12pt;
+  }
+
+  a { text-decoration: none; color: #000; }
+
+  .card, .feature-card, .comp-card {
+    break-inside:  avoid;
+    border:        1px solid #ccc;
+    border-radius: 0;
+    box-shadow:    none;
+    margin-bottom: 12pt;
+  }
+
+  h1, h2, h3 { color: #000; }
+  p           { max-width: none; }
+}

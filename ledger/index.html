@@ -3,13 +3,1006 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ledger — Minerva Admissions</title>
+  <title>Verification Ledger — Minerva Admissions</title>
+
+  <!-- Mood flash-prevention -->
+  <script>
+    (function () {
+      try {
+        var m = localStorage.getItem('minerva-mood');
+        if (m) document.documentElement.setAttribute('data-mood', m);
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="../css/design-system.css">
   <link rel="stylesheet" href="../css/components.css">
+  <link rel="stylesheet" href="../css/freddy.css">
+  <link rel="stylesheet" href="../css/glassmorphism.css">
+
+  <style>
+    /* ══════════════════════════════════════════════════
+       NAV
+    ══════════════════════════════════════════════════ */
+    #nav {
+      position:        fixed;
+      top: 0; left: 0; right: 0;
+      height:          60px;
+      background:      rgba(10,10,20,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom:   1px solid rgba(255,255,255,0.08);
+      display:         flex;
+      align-items:     center;
+      justify-content: space-between;
+      padding:         0 var(--sp-7);
+      z-index:         1000;
+    }
+    .wordmark {
+      font-family:     var(--font-display);
+      font-size:       24px;
+      font-weight:     700;
+      color:           var(--color-gold);
+      text-decoration: none;
+      letter-spacing:  0.08em;
+      transition:      opacity 0.2s ease;
+    }
+    .wordmark:hover { opacity: 0.82; color: var(--color-gold); text-decoration: none; }
+    .nav-links { display: flex; align-items: center; gap: var(--sp-7); }
+    .nav-link {
+      font-family:     var(--font-body);
+      font-size:       14px;
+      color:           rgba(255,255,255,0.72);
+      text-decoration: none;
+      transition:      color 0.2s ease;
+    }
+    .nav-link:hover   { color: #fff; text-decoration: none; }
+    .nav-link--active { color: #fff; }
+    .nav-mood-btn {
+      display:         flex;
+      align-items:     center;
+      justify-content: center;
+      width: 36px; height: 36px;
+      border-radius:   var(--r-full);
+      background:      rgba(255,255,255,0.07);
+      border:          1px solid rgba(255,255,255,0.12);
+      color:           rgba(255,255,255,0.72);
+      cursor:          pointer;
+      padding:         0;
+      transition:      background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+    .nav-mood-btn:hover {
+      background:   rgba(201,168,76,0.15);
+      color:        var(--color-gold-light);
+      border-color: rgba(201,168,76,0.35);
+    }
+
+    /* ══════════════════════════════════════════════════
+       PAGE SHELL
+    ══════════════════════════════════════════════════ */
+    body    { background: var(--color-cream); }
+    main    { padding: 80px var(--sp-5) var(--sp-12); min-height: 100vh; }
+    .ledger-shell { max-width: 860px; margin: 0 auto; }
+
+    /* ══════════════════════════════════════════════════
+       PAGE HERO
+    ══════════════════════════════════════════════════ */
+    .ledger-hero {
+      text-align:    center;
+      padding:       var(--sp-10) 0 var(--sp-8);
+    }
+    .ledger-eyebrow {
+      font-family:    var(--font-body);
+      font-size:      11px;
+      font-weight:    500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color:          var(--color-gold-dim);
+      margin-bottom:  var(--sp-3);
+    }
+    .ledger-heading {
+      font-family:    var(--font-display);
+      font-size:      clamp(1.875rem, 5vw, 3rem);
+      font-weight:    700;
+      color:          var(--color-ink);
+      letter-spacing: -0.02em;
+      line-height:    1.15;
+      margin-bottom:  var(--sp-4);
+    }
+    .ledger-sub {
+      font-family: var(--font-body);
+      font-size:   clamp(0.9375rem, 2vw, 1.0625rem);
+      color:       var(--color-academic);
+      line-height: 1.65;
+      max-width:   560px;
+      margin:      0 auto;
+    }
+
+    /* ══════════════════════════════════════════════════
+       TABS
+    ══════════════════════════════════════════════════ */
+    .ledger-tabs {
+      display:         flex;
+      gap:             0;
+      border-bottom:   2px solid var(--color-border);
+      margin-bottom:   var(--sp-7);
+    }
+    .ledger-tab {
+      font-family:     var(--font-body);
+      font-size:       14px;
+      font-weight:     500;
+      color:           var(--color-academic);
+      background:      none;
+      border:          none;
+      border-bottom:   2px solid transparent;
+      margin-bottom:   -2px;
+      padding:         var(--sp-3) var(--sp-5);
+      cursor:          pointer;
+      transition:      color 180ms ease, border-color 180ms ease;
+    }
+    .ledger-tab:hover              { color: var(--color-ink); }
+    .ledger-tab.tab-active         { color: var(--color-ink); border-bottom-color: var(--color-ink); }
+    .ledger-tab:focus-visible {
+      outline:        3px solid var(--color-border-focus);
+      outline-offset: 2px;
+    }
+
+    .ledger-panel { display: none; }
+    .ledger-panel.panel-active { display: block; }
+
+    /* ══════════════════════════════════════════════════
+       SEARCH
+    ══════════════════════════════════════════════════ */
+    .search-wrap {
+      position:     relative;
+      margin-bottom: var(--sp-6);
+    }
+    .search-icon {
+      position:       absolute;
+      left:           16px;
+      top:            50%;
+      transform:      translateY(-50%);
+      color:          var(--color-academic);
+      pointer-events: none;
+    }
+    #ledger-search {
+      padding-left: 48px;
+      font-size:    16px;
+      height:       52px;
+    }
+
+    /* ══════════════════════════════════════════════════
+       FILTER ROW
+    ══════════════════════════════════════════════════ */
+    .filter-row {
+      display:         flex;
+      gap:             var(--sp-3);
+      flex-wrap:       wrap;
+      margin-bottom:   var(--sp-6);
+      align-items:     center;
+    }
+    .filter-pill {
+      font-family:  var(--font-body);
+      font-size:    12px;
+      font-weight:  500;
+      padding:      6px 14px;
+      border-radius: var(--r-full);
+      border:       1.5px solid var(--color-border);
+      background:   var(--color-surface);
+      color:        var(--color-academic);
+      cursor:       pointer;
+      transition:   all 150ms ease;
+    }
+    .filter-pill:hover        { border-color: var(--color-border-strong); color: var(--color-ink); }
+    .filter-pill.pill-active  {
+      background:   var(--color-ink);
+      border-color: var(--color-ink);
+      color:        #fff;
+    }
+    .filter-pill:focus-visible {
+      outline:        3px solid var(--color-border-focus);
+      outline-offset: 2px;
+    }
+
+    /* ══════════════════════════════════════════════════
+       RESULTS COUNT
+    ══════════════════════════════════════════════════ */
+    #results-count {
+      font-family:   var(--font-body);
+      font-size:     13px;
+      color:         var(--color-academic);
+      margin-bottom: var(--sp-4);
+    }
+
+    /* ══════════════════════════════════════════════════
+       COMPETITION CARDS
+    ══════════════════════════════════════════════════ */
+    #results-list { display: flex; flex-direction: column; gap: var(--sp-4); }
+
+    .comp-card {
+      background:    var(--color-surface);
+      border:        1px solid var(--color-border);
+      border-radius: var(--r-xl);
+      overflow:      hidden;
+      transition:    border-color 200ms ease, box-shadow 200ms ease;
+    }
+    .comp-card:hover { border-color: var(--color-border-strong); }
+
+    .comp-card-header {
+      display:         flex;
+      align-items:     flex-start;
+      gap:             var(--sp-4);
+      padding:         var(--sp-5) var(--sp-6);
+      cursor:          pointer;
+    }
+    .comp-card-header:focus-visible {
+      outline:        3px solid var(--color-border-focus);
+      outline-offset: -3px;
+      border-radius:  var(--r-xl);
+    }
+
+    .comp-card-body-wrap {
+      overflow: hidden;
+      max-height: 0;
+      transition: max-height 350ms ease;
+    }
+    .comp-card-body-wrap.open { max-height: 9999px; }
+
+    .comp-card-body {
+      padding:    var(--sp-2) var(--sp-6) var(--sp-6);
+      border-top: 1px solid var(--color-border);
+    }
+
+    .comp-meta { flex: 1; }
+    .comp-name {
+      font-family:    var(--font-display);
+      font-size:      1.0625rem;
+      font-weight:    600;
+      color:          var(--color-ink);
+      letter-spacing: -0.01em;
+      line-height:    1.3;
+      margin-bottom:  var(--sp-2);
+    }
+    .comp-info-row {
+      display:   flex;
+      flex-wrap: wrap;
+      gap:       var(--sp-4);
+      font-family: var(--font-body);
+      font-size:   13px;
+      color:       var(--color-academic);
+      margin-bottom: var(--sp-3);
+    }
+    .comp-info-row span { display: flex; align-items: center; gap: 5px; }
+
+    .comp-chevron {
+      color:      var(--color-academic);
+      transition: transform 300ms ease;
+      flex-shrink: 0;
+      align-self: center;
+    }
+    .comp-card.card-open .comp-chevron { transform: rotate(180deg); }
+
+    /* ── Results table ── */
+    .comp-desc {
+      font-family:   var(--font-body);
+      font-size:     14px;
+      color:         var(--color-academic);
+      line-height:   1.65;
+      margin-bottom: var(--sp-5);
+    }
+    .results-section-title {
+      font-family:    var(--font-body);
+      font-size:      11px;
+      font-weight:    500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color:          var(--color-gold-dim);
+      margin-bottom:  var(--sp-3);
+    }
+    .results-table {
+      width:          100%;
+      border-collapse: collapse;
+      font-family:    var(--font-body);
+      font-size:      13px;
+      margin-bottom:  var(--sp-5);
+    }
+    .results-table th {
+      text-align:   left;
+      padding:      8px 12px;
+      font-size:    11px;
+      font-weight:  500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color:        var(--color-academic);
+      border-bottom: 1px solid var(--color-border);
+    }
+    .results-table td {
+      padding:      10px 12px;
+      color:        var(--color-ink);
+      border-bottom: 1px solid var(--color-border);
+      line-height:  1.4;
+    }
+    .results-table tr:last-child td { border-bottom: none; }
+    .results-table tr:hover td { background: rgba(26,26,46,0.02); }
+
+    .comp-actions {
+      display:   flex;
+      gap:       var(--sp-3);
+      flex-wrap: wrap;
+      margin-top: var(--sp-5);
+    }
+
+    /* Vouching row */
+    .vouch-row {
+      display:      flex;
+      align-items:  center;
+      gap:          var(--sp-4);
+      flex-wrap:    wrap;
+      padding:      var(--sp-4) var(--sp-5);
+      background:   rgba(201,168,76,0.05);
+      border:       1px solid rgba(201,168,76,0.18);
+      border-radius: var(--r-lg);
+      margin-top:   var(--sp-4);
+    }
+    .vouch-text {
+      font-family: var(--font-body);
+      font-size:   13px;
+      color:       var(--color-academic);
+      flex:        1;
+      line-height: 1.5;
+    }
+    .vouch-text strong { color: var(--color-ink); }
+
+    /* ══════════════════════════════════════════════════
+       NOT FOUND STATE
+    ══════════════════════════════════════════════════ */
+    #not-found-state {
+      display:    none;
+      text-align: center;
+      padding:    var(--sp-10) 0;
+    }
+    .not-found-emoji  { font-size: 2.5rem; margin-bottom: var(--sp-4); }
+    .not-found-title  {
+      font-family:    var(--font-display);
+      font-size:      1.25rem;
+      font-weight:    600;
+      color:          var(--color-ink);
+      margin-bottom:  var(--sp-3);
+    }
+    .not-found-sub {
+      font-family:   var(--font-body);
+      font-size:     14px;
+      color:         var(--color-academic);
+      margin-bottom: var(--sp-6);
+    }
+
+    /* ══════════════════════════════════════════════════
+       ADD COMPETITION FORM
+    ══════════════════════════════════════════════════ */
+    .section-divider {
+      border:     none;
+      border-top: 1px solid var(--color-border);
+      margin:     var(--sp-9) 0;
+    }
+    .form-section-header {
+      margin-bottom: var(--sp-7);
+    }
+    .form-section-eyebrow {
+      font-family:    var(--font-body);
+      font-size:      11px;
+      font-weight:    500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color:          var(--color-gold-dim);
+      margin-bottom:  var(--sp-3);
+    }
+    .form-section-title {
+      font-family:    var(--font-display);
+      font-size:      clamp(1.375rem, 3vw, 1.875rem);
+      font-weight:    700;
+      color:          var(--color-ink);
+      letter-spacing: -0.015em;
+      margin-bottom:  var(--sp-3);
+    }
+    .form-section-hint {
+      font-family: var(--font-body);
+      font-size:   14px;
+      color:       var(--color-academic);
+      line-height: 1.65;
+    }
+
+    /* CSV paste area */
+    .csv-hint {
+      font-family:   var(--font-body);
+      font-size:     12px;
+      color:         var(--color-academic);
+      margin-bottom: var(--sp-2);
+    }
+
+    /* ══════════════════════════════════════════════════
+       ORGANISER PORTAL
+    ══════════════════════════════════════════════════ */
+    .organiser-hero {
+      background:    var(--color-ink);
+      border-radius: var(--r-xl);
+      padding:       var(--sp-9) var(--sp-8);
+      margin-bottom: var(--sp-7);
+      color:         var(--dark-text, #E8E6E0);
+    }
+    .organiser-hero h2 {
+      font-family:    var(--font-display);
+      font-size:      clamp(1.375rem, 3vw, 1.875rem);
+      font-weight:    700;
+      color:          #fff;
+      letter-spacing: -0.015em;
+      margin-bottom:  var(--sp-4);
+    }
+    .organiser-value-list {
+      list-style:    none;
+      margin-bottom: var(--sp-6);
+      display:       flex;
+      flex-direction: column;
+      gap:           var(--sp-3);
+    }
+    .organiser-value-list li {
+      font-family:  var(--font-body);
+      font-size:    14px;
+      color:        var(--dark-text-2, #9B99A8);
+      line-height:  1.55;
+      padding-left: 20px;
+      position:     relative;
+    }
+    .organiser-value-list li::before {
+      content:    '→';
+      position:   absolute;
+      left:       0;
+      color:      var(--color-gold-dim);
+    }
+
+    /* ══════════════════════════════════════════════════
+       CLAIM MODAL
+    ══════════════════════════════════════════════════ */
+    .modal-overlay {
+      position:   fixed;
+      inset:      0;
+      background: rgba(0,0,0,0.55);
+      z-index:    8000;
+      display:    flex;
+      align-items: center;
+      justify-content: center;
+      padding:    var(--sp-5);
+      opacity:    0;
+      transition: opacity 220ms ease;
+    }
+    .modal-overlay.modal-open { opacity: 1; }
+
+    .modal-box {
+      background:    var(--color-surface);
+      border-radius: var(--r-xl);
+      padding:       var(--sp-8) var(--sp-7);
+      max-width:     520px;
+      width:         100%;
+      max-height:    90vh;
+      overflow-y:    auto;
+      transform:     translateY(16px) scale(0.98);
+      transition:    transform 220ms var(--ease-spring);
+      position:      relative;
+    }
+    .modal-overlay.modal-open .modal-box {
+      transform: translateY(0) scale(1);
+    }
+    .modal-close {
+      position:   absolute;
+      top:        var(--sp-5);
+      right:      var(--sp-5);
+      background: none;
+      border:     none;
+      cursor:     pointer;
+      color:      var(--color-academic);
+      padding:    6px;
+      border-radius: var(--r-md);
+      line-height: 1;
+    }
+    .modal-close:hover { color: var(--color-ink); background: var(--color-mist); }
+    .modal-close:focus-visible {
+      outline:        3px solid var(--color-border-focus);
+      outline-offset: 2px;
+    }
+    .modal-title {
+      font-family:    var(--font-display);
+      font-size:      1.375rem;
+      font-weight:    700;
+      color:          var(--color-ink);
+      letter-spacing: -0.01em;
+      margin-bottom:  var(--sp-2);
+    }
+    .modal-sub {
+      font-family:   var(--font-body);
+      font-size:     14px;
+      color:         var(--color-academic);
+      line-height:   1.6;
+      margin-bottom: var(--sp-6);
+    }
+    .modal-success {
+      display:    none;
+      text-align: center;
+      padding:    var(--sp-6) 0;
+    }
+    .modal-success-icon { font-size: 2rem; margin-bottom: var(--sp-4); }
+    .modal-success h3 {
+      font-family:    var(--font-display);
+      font-size:      1.25rem;
+      color:          var(--color-ink);
+      margin-bottom:  var(--sp-3);
+    }
+    .modal-success p { font-size: 14px; color: var(--color-academic); }
+
+    /* Upload field */
+    .upload-label {
+      display:       block;
+      padding:       var(--sp-5);
+      border:        2px dashed var(--color-border-strong);
+      border-radius: var(--r-lg);
+      text-align:    center;
+      cursor:        pointer;
+      font-family:   var(--font-body);
+      font-size:     13px;
+      color:         var(--color-academic);
+      line-height:   1.55;
+      transition:    border-color 150ms ease, background 150ms ease;
+    }
+    .upload-label:hover {
+      border-color: var(--color-border-focus);
+      background:   rgba(45,53,97,0.03);
+    }
+    .upload-label input { display: none; }
+    .upload-label strong { display: block; color: var(--color-ink); margin-bottom: 2px; }
+
+    /* ══════════════════════════════════════════════════
+       SUBMIT FEEDBACK
+    ══════════════════════════════════════════════════ */
+    .form-submit-row {
+      display:     flex;
+      align-items: center;
+      gap:         var(--sp-4);
+      flex-wrap:   wrap;
+      margin-top:  var(--sp-6);
+    }
+    .form-status-msg {
+      font-family: var(--font-body);
+      font-size:   13px;
+      color:       var(--color-sage);
+      display:     none;
+    }
+    .form-status-msg.visible { display: block; }
+
+    /* ══════════════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+      #nav          { padding: 0 var(--sp-5); }
+      .nav-links    { gap: var(--sp-4); }
+      .organiser-hero { padding: var(--sp-7) var(--sp-5); }
+      .comp-card-header { padding: var(--sp-4) var(--sp-5); }
+      .comp-card-body   { padding: var(--sp-2) var(--sp-5) var(--sp-5); }
+    }
+    @media (max-width: 480px) {
+      .nav-link:not(.nav-link--active) { display: none; }
+      .filter-row { gap: var(--sp-2); }
+      .comp-actions { flex-direction: column; }
+      .modal-box { padding: var(--sp-6) var(--sp-5); }
+    }
+
+    /* ══════════════════════════════════════════════════
+       REVEAL ANIMATIONS
+    ══════════════════════════════════════════════════ */
+    .reveal-target {
+      opacity:   0;
+      transform: translateY(12px);
+      transition: opacity 0.45s ease, transform 0.45s ease;
+    }
+    .reveal-target.revealed {
+      opacity:   1;
+      transform: translateY(0);
+    }
+
+    /* ══════════════════════════════════════════════════
+       PRINT
+    ══════════════════════════════════════════════════ */
+    @media print {
+      #nav, #freddy, .freddy-intro, .modal-overlay { display: none !important; }
+      main { padding-top: 0 !important; }
+      .comp-card-body-wrap { max-height: none !important; }
+    }
+  </style>
 </head>
 <body>
 
-  <script src="../js/freddy.js"></script>
+  <!-- OS Detection -->
+  <script>
+    (function () {
+      var ua  = navigator.userAgent;
+      var cls = /iPhone|iPad|iPod|Android/i.test(ua) ? 'os-mobile'
+              : /Mac/i.test(ua)                       ? 'os-mac'
+              : /Win/i.test(ua)                       ? 'os-win'
+              : /Linux/i.test(ua)                     ? 'os-linux'
+              : '';
+      if (cls) document.documentElement.classList.add(cls);
+    })();
+  </script>
+
+  <!-- Navigation -->
+  <header id="nav" role="banner">
+    <a href="../index.html" class="wordmark" aria-label="Minerva — go home">MINERVA</a>
+    <nav class="nav-links" aria-label="Main navigation">
+      <a href="../apply/index.html"  class="nav-link">Apply</a>
+      <a href="../signal/index.html" class="nav-link">Signal Not Noise</a>
+      <a href="index.html"           class="nav-link nav-link--active" aria-current="page">Verification Ledger</a>
+      <button class="nav-mood-btn" id="mood-toggle" aria-label="Change mood theme" type="button">
+        <svg viewBox="0 0 20 20" width="18" height="18" fill="currentColor" aria-hidden="true">
+          <polygon points="3,11 5,5 7,10"/>
+          <polygon points="17,11 15,5 13,10"/>
+          <ellipse cx="10" cy="13" rx="6" ry="5"/>
+          <circle cx="8"  cy="12.5" r="1" fill="rgba(0,0,0,0.5)"/>
+          <circle cx="12" cy="12.5" r="1" fill="rgba(0,0,0,0.5)"/>
+        </svg>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <div class="ledger-shell">
+
+      <!-- Hero -->
+      <div class="ledger-hero">
+        <p class="ledger-eyebrow">Verification Ledger</p>
+        <h1 class="ledger-heading">Your achievements deserve a permanent record.</h1>
+        <p class="ledger-sub">
+          Find and claim verified results for competitions — especially those that only live on a Facebook page.
+          Organisers can post results here permanently, for free.
+        </p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="ledger-tabs" role="tablist" aria-label="Ledger sections">
+        <button class="ledger-tab tab-active" role="tab" aria-selected="true"
+                aria-controls="panel-search" id="tab-search" type="button">
+          Find &amp; Verify
+        </button>
+        <button class="ledger-tab" role="tab" aria-selected="false"
+                aria-controls="panel-organiser" id="tab-organiser" type="button">
+          For Organisers
+        </button>
+      </div>
+
+      <!-- Panel: Find & Verify -->
+      <div class="ledger-panel panel-active" id="panel-search" role="tabpanel" aria-labelledby="tab-search">
+
+        <!-- Search -->
+        <div class="search-wrap">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="1.8"
+               stroke-linecap="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            class="input"
+            id="ledger-search"
+            type="search"
+            placeholder="Search for your competition or achievement\u2026"
+            aria-label="Search competitions"
+            autocomplete="off"
+          >
+        </div>
+
+        <!-- Filter pills -->
+        <div class="filter-row" role="group" aria-label="Filter by region">
+          <button class="filter-pill pill-active" data-filter="all"      type="button">All</button>
+          <button class="filter-pill"              data-filter="Nigeria"  type="button">Nigeria</button>
+          <button class="filter-pill"              data-filter="Kenya"    type="button">Kenya</button>
+          <button class="filter-pill"              data-filter="Ghana"    type="button">Ghana</button>
+          <button class="filter-pill"              data-filter="Pan-African" type="button">Pan-African</button>
+          <button class="filter-pill"              data-filter="International" type="button">International</button>
+        </div>
+
+        <p id="results-count" aria-live="polite" aria-atomic="true"></p>
+
+        <!-- Results list -->
+        <div id="results-list" aria-label="Competition results"></div>
+
+        <!-- Not found state -->
+        <div id="not-found-state" role="status" aria-live="polite">
+          <div class="not-found-emoji" aria-hidden="true">&#x1F50D;</div>
+          <p class="not-found-title">We do not have <span id="not-found-term">&ldquo;that competition&rdquo;</span> yet.</p>
+          <p class="not-found-sub">Be the first to add it to the Ledger.</p>
+          <button class="btn btn-gold" id="not-found-add-btn" type="button">
+            Add this competition to the Ledger
+          </button>
+        </div>
+
+        <hr class="section-divider">
+
+        <!-- Add competition form -->
+        <div id="add-competition-section">
+          <div class="form-section-header">
+            <p class="form-section-eyebrow">For competition organisers and students</p>
+            <h2 class="form-section-title">Add a competition to the Ledger</h2>
+            <p class="form-section-hint">
+              If your competition is not listed, add it here.
+              Entries start as &ldquo;Community Pending&rdquo; and upgrade to verified when an organiser confirms or three students vouch for it.
+            </p>
+          </div>
+
+          <form id="add-comp-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="ac-name">
+                Competition name <span aria-hidden="true" style="color:var(--color-terra)">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <input class="input" id="ac-name" name="name" type="text"
+                     placeholder="e.g. Lagos State Science Olympics" autocomplete="off" required>
+              <span class="form-error" id="ac-name-err" role="alert" style="display:none">
+                <svg width="12" height="12" viewBox="0 0 16 16" fill="var(--color-terra)" aria-hidden="true"><circle cx="8" cy="8" r="7"/><line x1="8" y1="5" x2="8" y2="9" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><circle cx="8" cy="11.5" r="0.75" fill="#fff"/></svg>
+                We need this to continue
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="ac-region">
+                Region / country <span aria-hidden="true" style="color:var(--color-terra)">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <input class="input" id="ac-region" name="region" type="text"
+                     placeholder="e.g. Lagos State, Nigeria" autocomplete="off" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="ac-year">
+                Year(s) held <span aria-hidden="true" style="color:var(--color-terra)">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <input class="input" id="ac-year" name="year" type="text"
+                     placeholder="e.g. 2022, 2023" autocomplete="off" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="ac-desc">
+                Brief description <span aria-hidden="true" style="color:var(--color-terra)">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <textarea class="input" id="ac-desc" name="description" rows="3"
+                        placeholder="What is this competition? Who can enter? What does it test?" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="ac-role">Your role</label>
+              <select class="input" id="ac-role" name="role" autocomplete="off">
+                <option value="">Choose one&hellip;</option>
+                <option value="organiser">Organiser / administrator</option>
+                <option value="participant">Past participant</option>
+                <option value="teacher">Teacher / coach</option>
+                <option value="parent">Parent</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="ac-email">
+                Your contact email <span aria-hidden="true" style="color:var(--color-terra)">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <input class="input" id="ac-email" name="email" type="email"
+                     placeholder="your@email.com" autocomplete="email" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="ac-website">Website or Facebook page (optional)</label>
+              <input class="input" id="ac-website" name="website" type="url"
+                     placeholder="https://facebook.com/yourcompetition" autocomplete="off">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="ac-results-csv">
+                Results (optional) &mdash; paste a table or upload CSV
+              </label>
+              <p class="csv-hint">Format: Name, School, Grade, Placement — one entry per line</p>
+              <textarea class="input" id="ac-results-csv" name="resultsCsv" rows="5"
+                        placeholder="Amara Obi, Federal Government College, SSS3, 1st Place&#10;Kofi Mensah, Achimota School, Grade 12, 2nd Place"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="upload-label" for="ac-file">
+                <input type="file" id="ac-file" name="file" accept=".csv,.pdf,.doc,.docx,.jpg,.jpeg,.png" aria-label="Upload results file">
+                <strong>Drop your file here, or click to browse</strong>
+                PDF, Word, CSV, or image &mdash; up to 10MB
+              </label>
+            </div>
+
+            <div class="form-submit-row">
+              <button class="btn btn-gold" type="submit" id="ac-submit">
+                Submit to the Ledger
+              </button>
+              <span class="form-status-msg" id="ac-status" role="status" aria-live="polite"></span>
+            </div>
+          </form>
+        </div>
+
+      </div><!-- /#panel-search -->
+
+      <!-- Panel: For Organisers -->
+      <div class="ledger-panel" id="panel-organiser" role="tabpanel" aria-labelledby="tab-organiser">
+
+        <div class="organiser-hero">
+          <h2>Organise a competition? Post your results here, permanently, for free.</h2>
+          <ul class="organiser-value-list">
+            <li>A permanent, searchable record every applicant can link in their applications globally.</li>
+            <li>Students verify their own results &mdash; you do not need to respond to every university email.</li>
+            <li>Your competition appears as &ldquo;Organiser Verified&rdquo; on every student&rsquo;s record.</li>
+            <li>Results are indexed and retrievable in perpetuity, even if your Facebook page disappears.</li>
+          </ul>
+          <a href="#organiser-form" class="btn btn-gold" id="register-organiser-btn">Register as Organiser</a>
+        </div>
+
+        <div id="organiser-form">
+          <div class="form-section-header">
+            <p class="form-section-eyebrow">Organiser registration</p>
+            <h2 class="form-section-title">Register your competition</h2>
+            <p class="form-section-hint">
+              Once verified, your competition will carry the &ldquo;Organiser Verified&rdquo; badge and
+              your results will be listed as authoritative.
+            </p>
+          </div>
+
+          <form id="organiser-reg-form" novalidate>
+            <div class="form-group">
+              <label class="form-label" for="org-orgname">
+                Organisation name <span aria-hidden="true" style="color:var(--color-terra)">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <input class="input" id="org-orgname" name="orgName" type="text"
+                     placeholder="e.g. Rivers State Mathematical Association" autocomplete="organization" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="org-email">
+                Contact email <span aria-hidden="true" style="color:var(--color-terra)">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <input class="input" id="org-email" name="email" type="email"
+                     placeholder="your@email.com" autocomplete="email" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="org-compname">
+                Competition name <span aria-hidden="true" style="color:var(--color-terra)">*</span>
+                <span class="sr-only">(required)</span>
+              </label>
+              <input class="input" id="org-compname" name="compName" type="text"
+                     placeholder="e.g. RiversMAN Mathematics Challenge" autocomplete="off" required>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="org-csv">
+                Upload results CSV
+                <span style="color:var(--color-academic);font-weight:400">(optional)</span>
+              </label>
+              <p class="csv-hint">Required columns: Name, School, Grade, Placement, Year</p>
+              <label class="upload-label" for="org-csv">
+                <input type="file" id="org-csv" name="csv" accept=".csv" aria-label="Upload results CSV">
+                <strong>Drop your CSV here, or click to browse</strong>
+                CSV format with headers: Name, School, Grade, Placement, Year
+              </label>
+            </div>
+
+            <div class="form-submit-row">
+              <button class="btn btn-gold" type="submit" id="org-submit">
+                Submit for Verification
+              </button>
+              <span class="form-status-msg" id="org-status" role="status" aria-live="polite"></span>
+            </div>
+          </form>
+        </div>
+
+      </div><!-- /#panel-organiser -->
+
+    </div><!-- /.ledger-shell -->
+  </main>
+
+  <!-- Claim Result Modal -->
+  <div class="modal-overlay" id="claim-modal" role="dialog" aria-modal="true"
+       aria-labelledby="claim-modal-title" aria-hidden="true">
+    <div class="modal-box">
+      <button class="modal-close" id="claim-modal-close" aria-label="Close modal" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="18" y1="6"  x2="6"  y2="18"/>
+          <line x1="6"  y1="6"  x2="18" y2="18"/>
+        </svg>
+      </button>
+
+      <!-- Form state -->
+      <div id="claim-form-content">
+        <h2 class="modal-title" id="claim-modal-title">Claim your result</h2>
+        <p class="modal-sub" id="claim-modal-sub">
+          Submit your placement for <strong id="claim-comp-name"></strong>.
+          A Pending Review tag will appear on your entry until we can confirm it.
+        </p>
+
+        <form id="claim-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="cl-name">
+              Your full name <span aria-hidden="true" style="color:var(--color-terra)">*</span>
+              <span class="sr-only">(required)</span>
+            </label>
+            <input class="input" id="cl-name" name="fullName" type="text"
+                   placeholder="As it appears on competition records" autocomplete="name" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cl-placement">
+              Your placement / result <span aria-hidden="true" style="color:var(--color-terra)">*</span>
+              <span class="sr-only">(required)</span>
+            </label>
+            <input class="input" id="cl-placement" name="placement" type="text"
+                   placeholder="e.g. 2nd Place, Gold Medal, National Finalist" autocomplete="off" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cl-school">
+              Your school <span aria-hidden="true" style="color:var(--color-terra)">*</span>
+              <span class="sr-only">(required)</span>
+            </label>
+            <input class="input" id="cl-school" name="school" type="text"
+                   placeholder="School name and location" autocomplete="organization" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cl-email">
+              Your email (for verification notifications) <span aria-hidden="true" style="color:var(--color-terra)">*</span>
+              <span class="sr-only">(required)</span>
+            </label>
+            <input class="input" id="cl-email" name="email" type="email"
+                   placeholder="your@email.com" autocomplete="email" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="cl-doc">
+              Supporting document (optional)
+            </label>
+            <label class="upload-label" for="cl-doc">
+              <input type="file" id="cl-doc" name="document"
+                     accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                     aria-label="Upload supporting document">
+              <strong>Drop your file here, or click to browse</strong>
+              PDF, Word, or image &mdash; up to 10MB
+            </label>
+          </div>
+
+          <div class="form-submit-row">
+            <button class="btn btn-gold" type="submit" id="cl-submit">
+              Submit Claim
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Success state -->
+      <div class="modal-success" id="claim-success">
+        <div class="modal-success-icon" aria-hidden="true">&#x2713;</div>
+        <h3>Claim submitted.</h3>
+        <p>Your result is now listed as &ldquo;Pending Review.&rdquo; We will notify you at the email you provided when it is confirmed.</p>
+      </div>
+    </div>
+  </div>
+
   <script src="../js/mood.js"></script>
+  <script src="../js/freddy.js"></script>
+  <script src="../js/ledger.js"></script>
+
 </body>
 </html>
