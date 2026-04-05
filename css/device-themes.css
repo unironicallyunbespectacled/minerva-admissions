@@ -1,0 +1,171 @@
+/* ═══════════════════════════════════════════════════════════════
+   DEVICE-SPECIFIC THEMES — css/device-themes.css
+   Injected by the device-detection script in <head>.
+   Classes are added to <html> before first paint.
+═══════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────
+   IPHONE PRO (15/16 series) — Pure glass, space black,
+   Dynamic Island aware
+───────────────────────────────────────────────────────────── */
+.iphone-pro .nav-header,
+.iphone-pro #nav {
+  padding-top: 54px; /* Dynamic Island clearance */
+  height: auto;
+  min-height: 60px;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+.iphone-pro .card,
+.iphone-pro .feature-card,
+.iphone-pro .comp-card { border-radius: 20px; }
+.iphone-pro body { background: #000000; }
+.iphone-pro .hero-headline { font-size: 48px; }
+
+/* Standard iPhone */
+.iphone-standard #nav {
+  background: rgba(10, 10, 20, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   IPAD MODERN (M2+) — Pro multi-column layout
+───────────────────────────────────────────────────────────── */
+.ipad-modern .feature-grid,
+.ipad-modern .features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.ipad-modern #nav { height: 72px; }
+.ipad-modern .comp-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Classic iPad */
+.ipad-classic .feature-grid { grid-template-columns: 1fr 1fr; }
+
+/* ─────────────────────────────────────────────────────────────
+   SAMSUNG PHONE — AMOLED optimised, punchy contrast
+───────────────────────────────────────────────────────────── */
+.device-samsung-phone body { background: #000000; }
+.device-samsung-phone .hero-headline { color: #FFFFFF; }
+.device-samsung-phone .btn-gold {
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.5);
+}
+.device-samsung-phone .card,
+.device-samsung-phone .feature-card,
+.device-samsung-phone .comp-card {
+  background: rgba(15, 15, 15, 0.98);
+  border-color: rgba(201, 168, 76, 0.12);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   SAMSUNG TABLET — Wide two-column layout
+───────────────────────────────────────────────────────────── */
+.device-samsung-tablet .apply-form {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 32px;
+}
+.device-samsung-tablet .comp-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   WINDOWS — Slightly more "corporate crisp"
+───────────────────────────────────────────────────────────── */
+.os-windows .input,
+.os-windows input[type="text"],
+.os-windows input[type="email"],
+.os-windows select,
+.os-windows textarea { border-radius: 4px; }
+.os-windows :focus-visible { outline: 2px solid #0078D4; outline-offset: 2px; }
+
+/* ─────────────────────────────────────────────────────────────
+   MACOS MACBOOK — Liquid glass translucency
+───────────────────────────────────────────────────────────── */
+.device-macbook #nav,
+.device-macbook .nav-header {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+/* On dark hero, keep nav dark for MacBook */
+#hero ~ .device-macbook #nav { background: rgba(10, 10, 20, 0.72); }
+
+/* ─────────────────────────────────────────────────────────────
+   iMAC — Wider container, bigger canvas
+───────────────────────────────────────────────────────────── */
+.device-imac .features-grid {
+  max-width: 1400px;
+}
+.device-imac .hero-headline {
+  font-size: clamp(3rem, 5vw, 5rem);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LINUX — Terminal energy. Respect it.
+───────────────────────────────────────────────────────────── */
+.os-linux #nav,
+.os-linux .nav-header {
+  border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+}
+.os-linux .btn-primary,
+.os-linux .btn-gold { border-radius: 0; }
+
+/* Tiny Tux penguin in bottom-left for Linux users */
+.os-linux::before {
+  content: '🐧';
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  font-size: 24px;
+  opacity: 0.4;
+  z-index: 9999;
+  pointer-events: none;
+  animation: tux-blink 4s ease-in-out infinite;
+}
+
+@keyframes tux-blink {
+  0%, 90%, 100% { opacity: 0.4; }
+  95%            { opacity: 0.9; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ANDROID GENERIC — Material You feel
+───────────────────────────────────────────────────────────── */
+.device-android .btn { border-radius: 24px; }
+.device-android .card,
+.device-android .feature-card,
+.device-android .comp-card { border-radius: 16px; }
+
+/* ─────────────────────────────────────────────────────────────
+   CURSOR RING — #cursor-ring
+   Organic Enso-like ring around cursor, gold, semi-transparent.
+   Added to all pages via freddy.js.
+───────────────────────────────────────────────────────────── */
+#cursor-ring {
+  position: fixed;
+  width: 80px;
+  height: 80px;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  animation: ring-breathe 2.5s ease-in-out infinite;
+  will-change: left, top;
+}
+
+@keyframes ring-breathe {
+  0%, 100% { transform: translate(-50%, -50%) scale(1.0); }
+  50%       { transform: translate(-50%, -50%) scale(1.06); }
+}
+
+/* Touch devices: hide cursor system */
+@media (hover: none) and (pointer: coarse) {
+  #cursor-ring,
+  #laser-dot { display: none !important; }
+  body { cursor: auto !important; }
+  a, button, .btn, [role="button"] { cursor: pointer !important; }
+}

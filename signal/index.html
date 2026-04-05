@@ -15,6 +15,24 @@
     })();
   </script>
 
+  <!-- Device detection -->
+  <script>
+  (function() {
+    var ua=navigator.userAgent,w=window.screen.width,cls=[];
+    function getGPU(){try{var c=document.createElement('canvas'),gl=c.getContext('webgl')||c.getContext('experimental-webgl');if(!gl)return'';var e=gl.getExtension('WEBGL_debug_renderer_info');return e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):'';}catch(e){return'';}}
+    var gpu=getGPU();
+    if(/iPhone/.test(ua)){cls.push('device-iphone');cls.push((gpu.indexOf('A17')>-1||gpu.indexOf('A16')>-1)?'iphone-pro':'iphone-standard');}
+    else if(/iPad/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){cls.push('device-ipad');cls.push((gpu.indexOf('M2')>-1||gpu.indexOf('M4')>-1)?'ipad-modern':'ipad-classic');}
+    else if(/Samsung|SM-T|SM-X/.test(ua)){cls.push('device-samsung-tablet');}
+    else if(/Samsung|SM-G|SM-S|SM-A/.test(ua)){cls.push('device-samsung-phone');}
+    else if(/Android/.test(ua)){cls.push('device-android');}
+    else if(navigator.platform&&navigator.platform.indexOf('Mac')>-1){cls.push('os-macos');cls.push(w<=1728?'device-macbook':'device-imac');}
+    else if(navigator.platform&&navigator.platform.indexOf('Win')>-1){cls.push('os-windows');}
+    else if(navigator.platform&&navigator.platform.indexOf('Linux')>-1){cls.push('os-linux');}
+    cls.forEach(function(c){document.documentElement.classList.add(c);});
+  })();
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -23,6 +41,7 @@
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/freddy.css">
   <link rel="stylesheet" href="../css/glassmorphism.css">
+  <link rel="stylesheet" href="../css/device-themes.css">
 
   <style>
     /* ══════════════════════════════════════════════════
@@ -431,7 +450,18 @@
 
   <!-- Navigation -->
   <header id="nav" role="banner">
-    <a href="../index.html" class="wordmark" aria-label="Minerva — go home">MINERVA</a>
+    <a href="../index.html" class="wordmark nav-logo" aria-label="Minerva — go home"
+       style="display:inline-flex;align-items:center;transition:transform 200ms ease;"
+       onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      <svg width="44" height="52" viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M30,4 C44,4 54,14 54,28 C54,42 44,52 30,52 C20,52 12,47 8,38 C6,33 6,28 8,23 C12,13 20,8 30,8"
+              stroke="white" stroke-width="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M30,4 C44,4 54,14 54,28 C54,42 44,52 30,52 C20,52 12,47 8,38"
+              stroke="rgba(255,255,255,0.15)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <text x="30" y="63" text-anchor="middle" font-family="Georgia, serif" font-size="9"
+              font-weight="bold" fill="white" letter-spacing="2">MINERVA</text>
+      </svg>
+    </a>
     <nav class="nav-links" aria-label="Main navigation">
       <a href="../apply/index.html" class="nav-link">Apply</a>
       <a href="index.html"          class="nav-link nav-link--active">Signal Not Noise</a>

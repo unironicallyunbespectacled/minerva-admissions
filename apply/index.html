@@ -15,6 +15,24 @@
     })();
   </script>
 
+  <!-- Device detection -->
+  <script>
+  (function() {
+    var ua=navigator.userAgent,w=window.screen.width,cls=[];
+    function getGPU(){try{var c=document.createElement('canvas'),gl=c.getContext('webgl')||c.getContext('experimental-webgl');if(!gl)return'';var e=gl.getExtension('WEBGL_debug_renderer_info');return e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):'';}catch(e){return'';}}
+    var gpu=getGPU();
+    if(/iPhone/.test(ua)){cls.push('device-iphone');cls.push((gpu.indexOf('A17')>-1||gpu.indexOf('A16')>-1)?'iphone-pro':'iphone-standard');}
+    else if(/iPad/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)){cls.push('device-ipad');cls.push((gpu.indexOf('M2')>-1||gpu.indexOf('M4')>-1)?'ipad-modern':'ipad-classic');}
+    else if(/Samsung|SM-T|SM-X/.test(ua)){cls.push('device-samsung-tablet');}
+    else if(/Samsung|SM-G|SM-S|SM-A/.test(ua)){cls.push('device-samsung-phone');}
+    else if(/Android/.test(ua)){cls.push('device-android');}
+    else if(navigator.platform&&navigator.platform.indexOf('Mac')>-1){cls.push('os-macos');cls.push(w<=1728?'device-macbook':'device-imac');}
+    else if(navigator.platform&&navigator.platform.indexOf('Win')>-1){cls.push('os-windows');}
+    else if(navigator.platform&&navigator.platform.indexOf('Linux')>-1){cls.push('os-linux');}
+    cls.forEach(function(c){document.documentElement.classList.add(c);});
+  })();
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -23,6 +41,7 @@
   <link rel="stylesheet" href="../css/components.css">
   <link rel="stylesheet" href="../css/freddy.css">
   <link rel="stylesheet" href="../css/glassmorphism.css">
+  <link rel="stylesheet" href="../css/device-themes.css">
 
   <style>
     /* ══════════════════════════════════════════════════
@@ -637,7 +656,18 @@
 
   <!-- Navigation -->
   <header id="nav" role="banner">
-    <a href="../index.html" class="wordmark" aria-label="Minerva — go home">MINERVA</a>
+    <a href="../index.html" class="wordmark nav-logo" aria-label="Minerva — go home"
+       style="display:inline-flex;align-items:center;transition:transform 200ms ease;"
+       onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+      <svg width="44" height="52" viewBox="0 0 60 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M30,4 C44,4 54,14 54,28 C54,42 44,52 30,52 C20,52 12,47 8,38 C6,33 6,28 8,23 C12,13 20,8 30,8"
+              stroke="white" stroke-width="5.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M30,4 C44,4 54,14 54,28 C54,42 44,52 30,52 C20,52 12,47 8,38"
+              stroke="rgba(255,255,255,0.15)" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <text x="30" y="63" text-anchor="middle" font-family="Georgia, serif" font-size="9"
+              font-weight="bold" fill="white" letter-spacing="2">MINERVA</text>
+      </svg>
+    </a>
     <nav class="nav-links" aria-label="Main navigation">
       <a href="index.html"           class="nav-link nav-link--active">Apply</a>
       <a href="../signal/index.html" class="nav-link">Signal Not Noise</a>
@@ -936,8 +966,11 @@
           <div class="essay-wrap">
             <div class="step-card">
               <p class="essay-eyebrow">Essay 1 · 300 words</p>
-              <p class="essay-prompt">"Describe a problem you noticed and did something about. It does not need to be big. It needs to be real."</p>
-              <p class="form-hint" style="margin-bottom:var(--sp-4)">This is not asking for a policy proposal. Tell us about one specific thing. Something that bothered you enough that you did something about it.</p>
+              <p class="essay-prompt">"Describe a problem you noticed and did something about."</p>
+              <p class="form-hint" style="margin-bottom:var(--sp-4)">It does not need to be a world problem. It needs to be real.
+              The smaller and more specific, the better. If you started a recycling
+              system in your neighborhood, that is more interesting to us than a
+              vague essay about climate change.</p>
               <div class="form-group" id="fg-essay1">
                 <textarea class="input essay-textarea" id="essay1" name="essay1"
                           data-max-words="300" rows="9"
@@ -946,6 +979,7 @@
                   <span class="essay-hint" id="essay1-hint"></span>
                   <span class="word-counter" id="essay1-counter" aria-live="polite">0 / 300</span>
                 </div>
+                <div id="essay1-quote" class="essay-quote-prompt"></div>
                 <div class="form-error"></div>
               </div>
             </div>
@@ -955,8 +989,12 @@
           <div class="essay-wrap">
             <div class="step-card">
               <p class="essay-eyebrow">Essay 2 · 500 words</p>
-              <p class="essay-prompt">"Tell us about something you know deeply — something you could explain to a stranger for an hour and still have more to say."</p>
-              <p class="form-hint" style="margin-bottom:var(--sp-4)">This could be physics, cooking, football tactics, your grandmother's language, the history of your city. Depth over breadth.</p>
+              <p class="essay-prompt">"Tell us about something you know deeply."</p>
+              <p class="form-hint" style="margin-bottom:var(--sp-4)">Not what you've studied. What you know. This could be
+              how your city works. How to survive on limited resources a month. The history
+              of your family's village. Football tactics. How engines work.
+              Whatever it is — if you could talk about it for an hour and still have
+              more to say — that's it.</p>
               <div class="form-group" id="fg-essay2">
                 <textarea class="input essay-textarea" id="essay2" name="essay2"
                           data-max-words="500" rows="12"
@@ -965,6 +1003,7 @@
                   <span class="essay-hint" id="essay2-hint"></span>
                   <span class="word-counter" id="essay2-counter" aria-live="polite">0 / 500</span>
                 </div>
+                <div id="essay2-quote" class="essay-quote-prompt"></div>
                 <div class="form-error"></div>
               </div>
             </div>
